@@ -3,94 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>우리 가족 여행 도감 V5.0</title>
+    <title>우리 가족 여행 도감 V5.3</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         :root { --primary: #0984e3; --dark: #2d3436; --bg: #f5f7fa; --white: #ffffff; }
-        * { font-family: 'Pretendard', sans-serif !important; letter-spacing: -0.3px !important; box-sizing: border-box; }
+        * { font-family: 'Pretendard', sans-serif !important; box-sizing: border-box; letter-spacing: -0.3px; }
         body { background: var(--bg); margin: 0; padding: 20px; color: var(--dark); line-height: 1.6; }
         .container { max-width: 800px; margin: 0 auto; }
         .header { text-align: center; padding: 20px 0; }
-        .header h1 { font-size: 2rem; margin: 0; font-weight: 800; color: var(--primary); }
-        .toggle-btn-area { text-align: right; margin-bottom: 15px; }
-        .btn-toggle-form { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 50px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(9, 132, 227, 0.3); }
-        #form-container { display: none; }
-        .main-card { background: var(--white); border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .header h1 { font-size: 2.2rem; margin: 0; font-weight: 800; color: var(--primary); }
+        .btn-toggle-form { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 50px; font-weight: 700; cursor: pointer; display: block; margin: 0 0 20px auto; box-shadow: 0 4px 15px rgba(9, 132, 227, 0.3); }
+        #form-container { display: none; background: var(--white); border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 30px; border: 1px solid #edf2f7; }
         .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .full { grid-column: span 2; }
-        label { display: block; margin-bottom: 8px; font-size: 0.85rem; font-weight: 600; color: #4a5568; }
-        select, input, textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: #fdfdfd; }
+        label { display: block; margin-bottom: 8px; font-size: 0.85rem; font-weight: 700; color: #4a5568; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 14px; background: #fdfdfd; transition: all 0.2s; }
         .btn-submit { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 20px; }
-        .filter-area { background: #fff; padding: 15px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 20px; }
-        .filter-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
-        .filter-row select { padding: 8px 2px; font-size: 12px; }
-        .search-row { display: flex; gap: 8px; }
-        .search-row input { flex: 1; height: 45px; border-radius: 25px; padding-left: 20px; border: 1px solid #eee; }
-        .btn-search { width: 50px; background: var(--primary); color: white; border: none; border-radius: 50%; cursor: pointer; }
-        .post-item { background: var(--white); border-radius: 15px; margin-bottom: 12px; border: 1px solid #edf2f7; overflow: hidden; }
-        .post-header { padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
-        .tag { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; margin-right: 8px; }
+        .filter-area { background: #fff; padding: 18px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 25px; border: 1px solid #edf2f7; }
+        .filter-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+        .filter-row select { padding: 10px 4px; font-size: 13px; text-align: center; border-radius: 10px; background: #f8fafc; }
+        .search-row { display: flex; gap: 10px; }
+        .search-row input { flex: 1; height: 48px; border-radius: 24px; padding-left: 20px; border: 1px solid #e2e8f0; }
+        .btn-search { width: 50px; height: 48px; background: var(--primary); color: white; border: none; border-radius: 50%; cursor: pointer; }
+        .post-item { background: var(--white); border-radius: 18px; margin-bottom: 15px; border: 1px solid #edf2f7; overflow: hidden; }
+        .post-header { padding: 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+        .tag { padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; margin-right: 10px; }
         .tag-food { background: #fff3e0; color: #e65100; }
         .tag-tour { background: #e3f2fd; color: #1976d2; }
         .tag-stay { background: #f3e5f5; color: #7b1fa2; }
-        .post-content { display: none; padding: 20px; background: #fafbfc; border-top: 1px solid #f1f3f6; }
-        .detail-card { background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
-        .detail-label { font-size: 0.75rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
-        .pager { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
-        .page-num { width: 35px; height: 35px; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
-        .page-num.active { background: var(--primary); color: white; }
+        .post-content { display: none; padding: 25px; background: #fafbfc; border-top: 1px solid #f1f3f6; }
+        .detail-card { background: #fff; border: 1px solid #edf2f7; border-radius: 12px; padding: 15px; margin-bottom: 12px; }
+        .detail-label { font-size: 0.8rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+        .pager { display: flex; justify-content: center; gap: 8px; margin: 30px 0; }
+        .page-num { width: 38px; height: 38px; border-radius: 10px; border: 1px solid #e2e8f0; background: #fff; cursor: pointer; font-weight: 700; }
+        .page-num.active { background: var(--primary); color: white; border-color: var(--primary); }
     </style>
 </head>
 <body>
 <div class="container">
     <header class="header">
         <h1>Family <span>Travel Log</span></h1>
-        <p>우리 가족 여행 도감</p>
+        <p>우리 가족 소중한 여행 기록장</p>
     </header>
 
-    <div class="toggle-btn-area">
-        <button class="btn-toggle-form" onclick="toggleForm()" id="btnToggle"><i class="fas fa-plus"></i> 새 정보 기록</button>
-    </div>
+    <button class="btn-toggle-form" onclick="toggleForm()" id="btnToggle"><i class="fas fa-plus"></i> 새로운 정보 기록하기</button>
 
     <div id="form-container">
-        <div class="main-card">
-            <form id="tripForm">
-                <div class="input-grid">
-                    <div><label>유형</label><select id="category"><option value="로컬 맛집">🍕 로컬 맛집</option><option value="관광 명소">🏛️ 관광 명소</option><option value="숙소">🏨 숙소</option></select></div>
-                    <div><label>명칭(업체명)</label><input type="text" id="title" required></div>
-                    <div><label>국가</label><input type="text" id="country" required></div>
-                    <div><label>지역</label><input type="text" id="region" required></div>
-                    <div class="full"><label>상세 주소</label><input type="text" id="address"></div>
-                    <div class="full"><label>추천 정보</label><input type="text" id="info1"></div>
-                    <div class="full"><label>메모</label><textarea id="info2" rows="3"></textarea></div>
-                    <div class="full"><label>평점</label><select id="rating"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select></div>
-                </div>
-                <button type="submit" class="btn-submit" id="btnSubmit">등록하기</button>
-            </form>
-        </div>
+        <form id="tripForm">
+            <div class="input-grid">
+                <div><label>유형</label><select id="category"><option value="로컬 맛집">🍕 로컬 맛집</option><option value="관광 명소">🏛️ 관광 명소</option><option value="숙소">🏨 숙소</option></select></div>
+                
+                <div><label>장소 명칭</label><input type="text" id="title" required placeholder="음식점 또는 관광지 명칭"></div>
+                <div><label>국가</label><input type="text" id="country" required placeholder="예: 한국, 베트남, 태국"></div>
+                <div><label>지역</label><input type="text" id="region" required placeholder="예: 부산, 다낭, 방콕"></div>
+                <div class="full"><label>상세 주소</label><input type="text" id="address" placeholder="구글지도 주소를 붙여넣으세요"></div>
+                <div class="full"><label>추천 정보 / 한줄평</label><input type="text" id="info1" placeholder="추천 메뉴나 장소의 특징"></div>
+                <div class="full"><label>상세 메모</label><textarea id="info2" rows="3" placeholder="가족들의 솔직한 후기를 적어주세요"></textarea></div>
+                <div class="full"><label>가족 평점</label><select id="rating"><option value="5">⭐⭐⭐⭐⭐ (강력 추천)</option><option value="4">⭐⭐⭐⭐ (좋아요)</option><option value="3">⭐⭐⭐ (보통이에요)</option><option value="2">⭐⭐ (아쉬워요)</option><option value="1">⭐ (비추천)</option></select></div>
+            </div>
+            <button type="submit" class="btn-submit" id="btnSubmit">기록 저장하기</button>
+        </form>
     </div>
 
     <div class="filter-area">
         <div class="filter-row">
-            <select id="fCat" onchange="runFilter()"><option value="">유형</option><option value="로컬 맛집">맛집</option><option value="관광 명소">관광</option><option value="숙소">숙소</option></select>
+            <select id="fCat" onchange="runFilter()"><option value="">전체 유형</option><option value="로컬 맛집">맛집</option><option value="관광 명소">관광</option><option value="숙소">숙소</option></select>
             <select id="fCou" onchange="runFilter()"><option value="">국가</option></select>
             <select id="fReg" onchange="runFilter()"><option value="">지역</option></select>
-            <select id="fRat" onchange="runFilter()"><option value="">평점</option><option value="5">5점</option><option value="4">4점↑</option></select>
+            <select id="fRat" onchange="runFilter()"><option value="">평점</option><option value="5">5점만</option><option value="4">4점↑</option></select>
         </div>
         <div class="search-row">
-            <input type="text" id="keyword" placeholder="검색어 입력..." onkeypress="if(event.keyCode==13) runFilter()">
+            <input type="text" id="keyword" placeholder="장소, 내용, 메모 검색..." onkeypress="if(event.keyCode==13) runFilter()">
             <button class="btn-search" onclick="runFilter()"><i class="fas fa-search"></i></button>
         </div>
     </div>
 
-    <div id="list-container">로딩 중...</div>
+    <div id="list-container">데이터를 불러오는 중입니다...</div>
     <div id="pager" class="pager"></div>
 </div>
 
 <script>
-    // ⚠️ 여기에 본인의 구글 웹 앱 URL을 넣으세요.
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzvgxksUEctaH5dKQm1d76kvfQt-VkjUHN6N5_pui47KPFcl9CKwNgg37Zo-vAFv043uA/exec'; 
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyrVpAyHUclffUoB3VnpzdDYZ5IOXyU3Bf7ZD8mwdaEUcQ4bVlTBVFr54S7ssqt-0q1/exec'; 
 
     let masterData = [];
     let filteredData = [];
@@ -105,17 +99,19 @@
             masterData = await res.json();
             updateFilters();
             runFilter();
-        } catch (e) { document.getElementById('list-container').innerText = "데이터 로드 실패"; }
+        } catch (e) { document.getElementById('list-container').innerText = "로드 실패."; }
     }
 
     function toggleForm() {
         const f = document.getElementById('form-container');
-        f.style.display = f.style.display === 'block' ? 'none' : 'block';
+        const isHidden = f.style.display !== 'block';
+        f.style.display = isHidden ? 'block' : 'none';
+        document.getElementById('btnToggle').innerHTML = isHidden ? '<i class="fas fa-times"></i> 닫기' : '<i class="fas fa-plus"></i> 새로운 정보 기록하기';
     }
 
     function updateFilters() {
-        const nations = [...new Set(masterData.map(d => d.country))].sort();
-        const regions = [...new Set(masterData.map(d => d.region))].sort();
+        const nations = [...new Set(masterData.map(d => d.country))].filter(Boolean).sort();
+        const regions = [...new Set(masterData.map(d => d.region))].filter(Boolean).sort();
         document.getElementById('fCou').innerHTML = '<option value="">국가</option>' + nations.map(n => `<option value="${n}">${n}</option>`).join('');
         document.getElementById('fReg').innerHTML = '<option value="">지역</option>' + regions.map(r => `<option value="${r}">${r}</option>`).join('');
     }
@@ -128,7 +124,8 @@
         const key = document.getElementById('keyword').value.trim().toLowerCase();
 
         filteredData = masterData.filter(d => {
-            return (!cat || d.category === cat) && (!cou || d.country === cou) && (!reg || d.region === reg) && (!rat || parseInt(d.rating) >= parseInt(rat)) &&
+            return (!cat || d.category === cat) && (!cou || d.country === cou) && (!reg || d.region === reg) && 
+                   (!rat || parseInt(d.rating) >= parseInt(rat)) &&
                    (!key || (d.title && d.title.toLowerCase().includes(key)) || (d.info2 && d.info2.toLowerCase().includes(key)));
         });
         page = 1; drawList();
@@ -146,17 +143,20 @@
                     <div style="flex:1;">
                         <span class="tag ${d.category==='로컬 맛집'?'tag-food':d.category==='숙소'?'tag-stay':'tag-tour'}">${d.category}</span>
                         <strong>${d.title}</strong>
-                        <div style="font-size:0.8rem; color:#777;">${d.country} · ${d.region}</div>
+                        <div style="font-size:0.8rem; color:#718096; margin-top:4px;"><i class="fas fa-map-marker-alt"></i> ${d.country} · ${d.region}</div>
                     </div>
-                    <div style="text-align:right;"><div style="color:#f1c40f;">⭐ ${d.rating}</div><div style="font-size:0.7rem; color:#ccc;">${d.date}</div></div>
+                    <div style="text-align:right;">
+                        <div style="color:#f1c40f; font-weight:800;">⭐ ${d.rating}</div>
+                        <div style="font-size:0.75rem; color:#a0aec0; margin-top:4px;">${d.date || ''}</div>
+                    </div>
                 </div>
                 <div class="post-content" id="detail-${i}">
-                    <div class="detail-card"><div class="detail-label">📍 주소</div>${d.address || '-'}</div>
-                    <div class="detail-card"><div class="detail-label">📋 정보</div>${d.info1 || '-'}</div>
-                    <div class="detail-card"><div class="detail-label">📝 메모</div>${d.info2 || '-'}</div>
-                    <div style="text-align:right; margin-top:15px;">
-                        <button onclick="goEdit('${d.title}')" style="border:none; background:none; color:var(--primary); cursor:pointer;">수정</button>
-                        <button onclick="goDelete('${d.title}')" style="border:none; background:none; color:#e74c3c; cursor:pointer; margin-left:15px;">삭제</button>
+                    <div class="detail-card"><div class="detail-label">📍 상세 주소</div>${d.address || '-'}</div>
+                    <div class="detail-card"><div class="detail-label">📋 추천 정보</div>${d.info1 || '-'}</div>
+                    <div class="detail-card"><div class="detail-label">📝 메모</div><div style="white-space:pre-wrap;">${d.info2 || '-'}</div></div>
+                    <div style="text-align:right; margin-top:20px;">
+                        <button onclick="goEdit('${d.title.replace(/'/g, "\\'")}')" style="border:none; background:#edf2f7; color:#4a5568; padding:8px 15px; border-radius:8px; cursor:pointer;">수정</button>
+                        <button onclick="goDelete('${d.title.replace(/'/g, "\\'")}')" style="border:none; background:#fff5f5; color:#e53e3e; padding:8px 15px; border-radius:8px; cursor:pointer; margin-left:10px;">삭제</button>
                     </div>
                 </div>
             </div>`).join('');
@@ -176,12 +176,14 @@
 
     function toggleAccordion(id) {
         const el = document.getElementById(id);
-        el.style.display = el.style.display === 'block' ? 'none' : 'block';
+        const isShow = el.style.display === 'block';
+        document.querySelectorAll('.post-content').forEach(c => c.style.display = 'none');
+        el.style.display = isShow ? 'none' : 'block';
     }
 
     document.getElementById('tripForm').onsubmit = async (e) => {
         e.preventDefault();
-        const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerText = "저장 중...";
+        const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerText = "데이터 처리 중...";
         
         const payload = {
             action: editMode ? 'edit' : 'add',
@@ -194,8 +196,7 @@
                 address: document.getElementById('address').value,
                 info1: document.getElementById('info1').value,
                 info2: document.getElementById('info2').value,
-                rating: document.getElementById('rating').value,
-                date: new Date().toLocaleDateString()
+                rating: document.getElementById('rating').value
             }
         };
 
@@ -205,7 +206,7 @@
 
     async function goDelete(t) {
         event.stopPropagation();
-        if(!confirm('삭제할까요?')) return;
+        if(!confirm(`삭제할까요?`)) return;
         await fetch(API_URL, { method: 'POST', body: JSON.stringify({action:'delete', targetTitle:t}) });
         location.reload();
     }
@@ -213,17 +214,18 @@
     function goEdit(t) {
         event.stopPropagation();
         const d = masterData.find(x => x.title === t);
+        if(!d) return;
         document.getElementById('category').value = d.category;
         document.getElementById('title').value = d.title;
         document.getElementById('country').value = d.country;
         document.getElementById('region').value = d.region;
-        document.getElementById('address').value = d.address;
-        document.getElementById('info1').value = d.info1;
-        document.getElementById('info2').value = d.info2;
+        document.getElementById('address').value = d.address || '';
+        document.getElementById('info1').value = d.info1 || '';
+        document.getElementById('info2').value = d.info2 || '';
         document.getElementById('rating').value = d.rating;
         editMode = true; editTarget = t;
-        document.getElementById('form-container').style.display = 'block';
-        document.getElementById('btnSubmit').innerText = "수정 완료";
+        if(document.getElementById('form-container').style.display !== 'block') toggleForm();
+        document.getElementById('btnSubmit').innerText = "내용 수정하기";
         window.scrollTo(0,0);
     }
 
