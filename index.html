@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>우리 가족 여행 도감 V4.4</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        :root { --primary: #0984e3; --dark: #2d3436; --bg: #f5f7fa; --white: #ffffff; }
+        * { font-family: 'Pretendard', -apple-system, sans-serif !important; letter-spacing: -0.3px !important; }
+        body { background: var(--bg); margin: 0; padding: 20px; color: var(--dark); line-height: 1.6; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { text-align: center; padding: 20px 0; }
+        .header h1 { font-size: 2rem; margin: 0; font-weight: 800; color: var(--primary); }
+        .header p { color: #636e72; margin-top: 5px; }
+        .toggle-btn-area { text-align: right; margin-bottom: 15px; }
+        .btn-toggle-form { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 50px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(9, 132, 227, 0.3); }
+        #form-container { display: none; }
+        .main-card { background: var(--white); border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 30px; border: 1px solid #edf2f7; }
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .full { grid-column: span 2; }
+        label { display: block; margin-bottom: 8px; font-size: 0.85rem; font-weight: 600; color: #4a5568; }
+        select, input, textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; box-sizing: border-box; background: #fdfdfd; }
+        .btn-submit { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 20px; }
+        
+        .map-btn { display: inline-flex; align-items: center; gap: 8px; background: #f1f3f6; padding: 10px 16px; border-radius: 8px; color: #0984e3; text-decoration: none; font-weight: 600; font-size: 0.9rem; border: 1px solid #e2e8f0; margin-top: 5px; transition: 0.2s; }
+        .map-btn i.fa-location-dot { color: #e74c3c; }
+
+        .filter-area { background: #fff; padding: 15px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 20px; }
+        
+        /* [수정 부분] 필터 영역: 무조건 한 줄 유지 (5열 고정) */
+        .filter-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
+        .filter-row select { padding: 8px 4px; font-size: 14px; text-align: center; }
+
+        /* [핵심 수정] 모바일 전용: 화면이 480px 이하일 때 폰트 크기 축소 */
+        @media screen and (max-width: 480px) {
+            .filter-row { gap: 3px; } /* 간격 좁힘 */
+            .filter-row select { 
+                font-size: 11px !important; /* 글자 크기 축소 */
+                padding: 8px 2px !important; /* 좌우 여백 축소 */
+            }
+        }
+
+        .search-row { display: flex; gap: 8px; margin-top: 10px; }
+        .search-row input { flex: 1; height: 45px; border-radius: 25px; padding-left: 20px; background: #f1f3f6; border: none; }
+        .btn-search { width: 60px; height: 45px; background: var(--primary); color: white; border: none; border-radius: 25px; cursor: pointer; }
+        .highlight { background-color: #fff176; font-weight: bold; border-radius: 2px; padding: 0 2px; }
+        
+        .post-item { background: var(--white); border-radius: 15px; margin-bottom: 12px; border: 1px solid #edf2f7; overflow: hidden; }
+        .post-header { padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; gap: 10px; }
+        
+        .tag { flex-shrink: 0; white-space: nowrap; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; display: inline-block; }
+        .tag-food { background: #fff3e0; color: #e65100; }
+        .tag-tour { background: #e3f2fd; color: #1976d2; }
+        .tag-stay { background: #f3e5f5; color: #7b1fa2; }
+        
+        .post-content { display: none; padding: 25px; background: #fafbfc; border-top: 1px solid #f1f3f6; }
+        .detail-card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .detail-label { font-size: 0.8rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .post-meta { text-align: right; flex-shrink: 0; }
+        .post-date { font-size: 0.7rem; color: #a0aec0; }
+        .pager { display: flex; justify-content: center; gap: 8px; margin: 30px 0; min-height: 40px; }
+        .page-num { width: 35px; height: 35px; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-weight: bold; }
+        .page-num.active { background: var(--primary); color: white; border-color: var(--primary); }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <h1>Family <span>Travel Log</span></h1>
+        <p>무제한으로 기록하는 우리 가족 도감</p>
+    </header>
+    <div class="toggle-btn-area">
+        <button class="btn-toggle-form" onclick="toggleForm()" id="btnToggle"><i class="fas fa-plus"></i> 새로운 정보 기록하기</button>
+    </div>
+    <div id="form-container">
+        <div class="main-card">
+            <form id="tripForm">
+                <div class="input-grid">
+                    <div><label>유형</label><select id="category" onchange="updateLabel()"><option value="로컬 맛집">🍕 로컬 맛집</option><option value="관광 명소">🏛️ 관광 명소</option><option value="숙소">🏨 숙소</option></select></div>
+                    <div><label id="nameLabel">음식점(업체명)</label><input type="text" id="title" required></div>
+                    <div><label>국가</label><input type="text" id="country" required></div>
+                    <div><label>지역</label><input type="text" id="region" required></div>
+                    <div class="full"><label>상세 주소 (입력 시 지도 버튼 생성)</label><input type="text" id="address"></div>
+                    <div class="full"><label id="recomLabel">추천 메뉴 및 맛</label><input type="text" id="info1"></div>
+                    <div class="full"><label id="memoLabel">가족들의 상세 메모</label><textarea id="info2"></textarea></div>
+                    <div class="full"><label>가족 평점</label><select id="rating"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select></div>
+                </div>
+                <button type="submit" class="btn-submit" id="btnSubmit">도감에 등록하기</button>
+            </form>
+        </div>
+    </div>
+    <div class="filter-area">
+        <div class="filter-row">
+            <select id="fCat" onchange="runFilter()"><option value="">유형</option><option value="로컬 맛집">맛집</option><option value="관광 명소">관광</option><option value="숙소">숙소</option></select>
+            <select id="fCou" onchange="runFilter()"><option value="">국가</option></select>
+            <select id="fReg" onchange="runFilter()"><option value="">지역</option></select>
+            <select id="fRat" onchange="runFilter()"><option value="">평점</option><option value="5">5점</option><option value="4">4점↑</option></select>
+        </div>
+        <div class="search-row">
+            <input type="text" id="keyword" placeholder="이름, 내용, 메모 검색..." onkeypress="if(event.keyCode==13) runFilter()">
+            <button class="btn-search" onclick="runFilter()"><i class="fas fa-search"></i></button>
+        </div>
+    </div>
+    <div id="list-container">데이터를 불러오는 중입니다...</div>
+    <div id="pager" class="pager"></div>
+</div>
+
+<script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyrVpAyHUclffUoB3VnpzdDYZ5IOXyU3Bf7ZD8mwdaEUcQ4bVlTBVFr54S7ssqt-0q1/exec'; 
+
+    let masterData = [];
+    let filteredData = [];
+    let page = 1;
+    const limit = 10;
+    let editMode = false;
+    let editTarget = null;
+
+    function toggleForm() {
+        const form = document.getElementById('form-container');
+        const btn = document.getElementById('btnToggle');
+        form.style.display = form.style.display === 'block' ? 'none' : 'block';
+        btn.innerHTML = form.style.display === 'block' ? '<i class="fas fa-times"></i> 입력창 닫기' : '<i class="fas fa-plus"></i> 새로운 정보 기록하기';
+    }
+
+    function updateLabel() {
+        const cat = document.getElementById('category').value;
+        const nameLabel = document.getElementById('nameLabel');
+        const recomLabel = document.getElementById('recomLabel');
+        const memoLabel = document.getElementById('memoLabel');
+        
+        memoLabel.innerText = "가족들의 상세 메모";
+
+        if(cat === '숙소') {
+            nameLabel.innerText = '숙소명'; 
+            recomLabel.innerText = '호텔 등급(성급)';
+        } else if(cat === '로컬 맛집') {
+            nameLabel.innerText = '음식점(업체명)'; 
+            recomLabel.innerText = '추천 메뉴 및 맛';
+        } else {
+            nameLabel.innerText = '장소명(관광지)'; 
+            recomLabel.innerText = '한줄 추천/특징';
+        }
+    }
+
+    async function loadData() {
+        try {
+            const res = await fetch(API_URL);
+            masterData = await res.json();
+            updateFilters();
+            runFilter();
+        } catch (e) { document.getElementById('list-container').innerText = "로드 실패."; }
+    }
+
+    function updateFilters() {
+        const nations = [...new Set(masterData.map(d => d.country))].sort();
+        const regions = [...new Set(masterData.map(d => d.region))].sort();
+        document.getElementById('fCou').innerHTML = '<option value="">국가</option>' + nations.map(n => `<option value="${n}">${n}</option>`).join('');
+        document.getElementById('fReg').innerHTML = '<option value="">지역</option>' + regions.map(r => `<option value="${r}">${r}</option>`).join('');
+    }
+
+    function runFilter() {
+        const sCat = document.getElementById('fCat').value;
+        const sCou = document.getElementById('fCou').value;
+        const sReg = document.getElementById('fReg').value;
+        const sRat = document.getElementById('fRat').value;
+        const sKey = document.getElementById('keyword').value.trim().toLowerCase();
+
+        filteredData = masterData.filter(d => {
+            const matchFilter = (!sCat || d.category === sCat) && (!sCou || d.country === sCou) && (!sReg || d.region === sReg) && (!sRat || parseInt(d.rating) >= parseInt(sRat));
+            const matchSearch = !sKey || (d.title.toLowerCase().includes(sKey) || (d.info1 && d.info1.toLowerCase().includes(sKey)) || (d.info2 && d.info2.toLowerCase().includes(sKey)));
+            return matchFilter && matchSearch;
+        });
+        page = 1;
+        drawList();
+    }
+
+    function applyHighlight(text, keyword) {
+        if (!keyword || !text) return text;
+        const regex = new RegExp(`(${keyword})`, 'gi');
+        return text.replace(regex, '<span class="highlight">$1</span>');
+    }
+
+    function drawList() {
+        const start = (page - 1) * limit;
+        const end = start + limit;
+        const items = filteredData.slice().reverse().slice(start, end);
+        const container = document.getElementById('list-container');
+        const sKey = document.getElementById('keyword').value.trim();
+
+        if(filteredData.length === 0) { 
+            container.innerHTML = "<p style='text-align:center; padding:20px;'>기록이 없습니다.</p>"; 
+            document.getElementById('pager').innerHTML = '';
+            return; 
+        }
+
+        container.innerHTML = items.map((d, i) => {
+            let tagClass = d.category === '로컬 맛집' ? 'tag-food' : (d.category === '숙소' ? 'tag-stay' : 'tag-tour');
+            let brief = d.info1 ? `(${d.info1.length > 12 ? d.info1.substring(0,12)+'...' : d.info1})` : '';
+            let recomTitle = d.category === '숙소' ? '호텔 등급(성급)' : (d.category === '로컬 맛집' ? '추천 메뉴 및 맛' : '한줄 추천/특징');
+
+            return `
+            <div class="post-item">
+                <div class="post-header" onclick="toggleAccordion('detail-${i}')">
+                    <div style="flex:1; min-width:0; display:flex; align-items:center; gap:10px;">
+                        <span class="tag ${tagClass}">${d.category.split(' ')[1] || d.category}</span>
+                        <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                            <strong>${applyHighlight(d.title, sKey)}</strong> 
+                            <span style="font-size:0.8rem; color:#718096;">${applyHighlight(brief, sKey)}</span>
+                            <div style="font-size:0.8rem; color:#718096;">${d.country} · ${d.region}</div>
+                        </div>
+                    </div>
+                    <div class="post-meta">
+                        <div style="color:#f1c40f;">⭐ ${d.rating}</div>
+                        <div class="post-date">${d.date || ''}</div>
+                    </div>
+                </div>
+                <div class="post-content" id="detail-${i}">
+                    <div class="detail-card">
+                        <span class="detail-label"><i class="fas fa-map-marked-alt"></i> 상세 주소</span>
+                        ${d.address ? `
+                            <a href="https://maps.google.com/?q=${encodeURIComponent(d.address)}" target="_blank" class="map-btn">
+                                <i class="fas fa-location-dot"></i> ${d.address}
+                            </a>
+                        ` : '<div style="color:#a0aec0; font-size:0.9rem;">정보 없음</div>'}
+                    </div>
+                    <div class="detail-card">
+                        <span class="detail-label"><i class="fas fa-star"></i> ${recomTitle}</span>
+                        <div style="font-size:0.95rem;">${applyHighlight(d.info1, sKey) || '-'}</div>
+                    </div>
+                    <div class="detail-card">
+                        <span class="detail-label"><i class="fas fa-comment-dots"></i> 가족들의 상세 메모</span>
+                        <div style="white-space:pre-wrap; font-size:0.95rem;">${applyHighlight(d.info2, sKey) || '-'}</div>
+                    </div>
+                    <div style="display:flex; justify-content:flex-end; gap:10px;">
+                        <button onclick="goEdit('${d.title.replace(/'/g, "\\'")}')" style="border:none; background:none; color:#718096; cursor:pointer;"><i class="fas fa-edit"></i> 수정</button>
+                        <button onclick="goDelete('${d.title.replace(/'/g, "\\'")}')" style="border:none; background:none; color:#ff7675; cursor:pointer;"><i class="fas fa-trash"></i> 삭제</button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+        drawPager();
+    }
+
+    function drawPager() {
+        const total = Math.ceil(filteredData.length / limit);
+        const pager = document.getElementById('pager');
+        pager.innerHTML = '';
+        if(total <= 1) return;
+        for(let i=1; i<=total; i++) {
+            const btn = document.createElement('button');
+            btn.innerText = i; btn.className = `page-num ${i === page ? 'active' : ''}`;
+            btn.onclick = () => { page = i; drawList(); window.scrollTo({top: 0, behavior: 'smooth'}); };
+            pager.appendChild(btn);
+        }
+    }
+
+    function toggleAccordion(id) {
+        const el = document.getElementById(id);
+        const isVisible = el.style.display === 'block';
+        document.querySelectorAll('.post-content').forEach(c => c.style.display = 'none');
+        el.style.display = isVisible ? 'none' : 'block';
+    }
+
+    document.getElementById('tripForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btnSubmit');
+        btn.innerText = "처리 중..."; btn.disabled = true;
+        const data = {
+            category: document.getElementById('category').value,
+            country: document.getElementById('country').value,
+            region: document.getElementById('region').value,
+            address: document.getElementById('address').value,
+            title: document.getElementById('title').value,
+            info1: document.getElementById('info1').value,
+            info2: document.getElementById('info2').value,
+            rating: document.getElementById('rating').value,
+            date: new Date().toLocaleDateString()
+        };
+        await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: editMode ? 'edit' : 'add', targetTitle: editTarget, data: data }) });
+        location.reload();
+    };
+
+    function goEdit(t) {
+        event.stopPropagation();
+        const d = masterData.find(item => item.title === t);
+        document.getElementById('form-container').style.display = 'block';
+        document.getElementById('btnToggle').innerHTML = '<i class="fas fa-times"></i> 입력창 닫기';
+        document.getElementById('category').value = d.category;
+        updateLabel();
+        document.getElementById('title').value = d.title;
+        document.getElementById('country').value = d.country;
+        document.getElementById('region').value = d.region;
+        document.getElementById('address').value = d.address;
+        document.getElementById('info1').value = d.info1;
+        document.getElementById('info2').value = d.info2;
+        document.getElementById('rating').value = d.rating;
+        editMode = true; editTarget = t;
+        document.getElementById('btnSubmit').innerText = "내용 수정 완료";
+        window.scrollTo(0,0);
+    }
+
+    async function goDelete(t) {
+        event.stopPropagation();
+        if(!confirm('정말 삭제할까요?')) return;
+        await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', targetTitle: t }) });
+        location.reload();
+    }
+
+    loadData();
+</script>
+</body>
+</html>
