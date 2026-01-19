@@ -3,101 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>우리 가족 여행 도감 V5.0</title>
+    <title>Family Travel Archive</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         :root { --primary: #0984e3; --dark: #2d3436; --bg: #f5f7fa; --white: #ffffff; }
-        * { font-family: 'Pretendard', sans-serif !important; letter-spacing: -0.3px !important; box-sizing: border-box; }
+        * { font-family: 'Pretendard', sans-serif !important; box-sizing: border-box; letter-spacing: -0.5px; }
         body { background: var(--bg); margin: 0; padding: 20px; color: var(--dark); line-height: 1.6; }
         .container { max-width: 800px; margin: 0 auto; }
-        .header { text-align: center; padding: 20px 0; }
-        .header h1 { font-size: 2rem; margin: 0; font-weight: 800; color: var(--primary); }
-        .toggle-btn-area { text-align: right; margin-bottom: 15px; }
-        .btn-toggle-form { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 50px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(9, 132, 227, 0.3); }
-        #form-container { display: none; }
-        .main-card { background: var(--white); border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 30px; }
-        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .header { text-align: center; padding: 30px 0; }
+        .header h1 { font-size: 2.2rem; margin: 0; font-weight: 800; color: var(--primary); }
+        .header p { color: #636e72; margin-top: 8px; font-weight: 500; font-size: 1.1rem; }
+        .btn-toggle-form { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 50px; font-weight: 700; cursor: pointer; display: block; margin: 0 0 25px auto; box-shadow: 0 4px 15px rgba(9, 132, 227, 0.3); transition: 0.2s; }
+        #form-container { display: none; background: var(--white); border-radius: 24px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 30px; border: 1px solid #edf2f7; }
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
         .full { grid-column: span 2; }
-        label { display: block; margin-bottom: 8px; font-size: 0.85rem; font-weight: 600; color: #4a5568; }
-        select, input, textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: #fdfdfd; }
-        .btn-submit { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 20px; }
-        .filter-area { background: #fff; padding: 15px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 20px; }
-        .filter-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
-        .filter-row select { padding: 8px 2px; font-size: 12px; }
-        .search-row { display: flex; gap: 8px; }
-        .search-row input { flex: 1; height: 45px; border-radius: 25px; padding-left: 20px; border: 1px solid #eee; }
-        .btn-search { width: 50px; background: var(--primary); color: white; border: none; border-radius: 50%; cursor: pointer; }
-        .post-item { background: var(--white); border-radius: 15px; margin-bottom: 12px; border: 1px solid #edf2f7; overflow: hidden; }
-        .post-header { padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
-        .tag { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; margin-right: 8px; }
+        label { display: block; margin-bottom: 8px; font-size: 0.85rem; font-weight: 700; color: #4a5568; }
+        input, select, textarea { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 14px; font-size: 14px; background: #fdfdfd; }
+        .btn-submit { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; }
+        .filter-area { background: #fff; padding: 20px; border-radius: 22px; margin-bottom: 25px; border: 1px solid #edf2f7; }
+        .filter-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
+        .search-row { display: flex; gap: 10px; }
+        .search-row input { flex: 1; height: 50px; border-radius: 25px; padding-left: 22px; border: 1px solid #e2e8f0; }
+        .btn-search { width: 50px; height: 50px; background: var(--primary); color: white; border: none; border-radius: 50%; cursor: pointer; }
+        .post-item { background: var(--white); border-radius: 20px; margin-bottom: 15px; border: 1px solid #edf2f7; overflow: hidden; }
+        .post-header { padding: 22px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+        .tag { padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; margin-right: 10px; }
         .tag-food { background: #fff3e0; color: #e65100; }
         .tag-tour { background: #e3f2fd; color: #1976d2; }
         .tag-stay { background: #f3e5f5; color: #7b1fa2; }
-        .post-content { display: none; padding: 20px; background: #fafbfc; border-top: 1px solid #f1f3f6; }
-        .detail-card { background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
-        .detail-label { font-size: 0.75rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
-        .pager { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
-        .page-num { width: 35px; height: 35px; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
-        .page-num.active { background: var(--primary); color: white; }
+        .post-content { display: none; padding: 25px; background: #fafbfc; border-top: 1px solid #f1f3f6; }
+        .detail-card { background: #fff; border: 1px solid #edf2f7; border-radius: 15px; padding: 18px; margin-bottom: 12px; }
+        .detail-label { font-size: 0.8rem; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
+        .map-btn { display: inline-flex; align-items: center; gap: 6px; background: #e1f0ff; color: #0984e3; padding: 8px 15px; border-radius: 10px; text-decoration: none; font-size: 0.85rem; font-weight: 700; margin-top: 10px; }
     </style>
 </head>
 <body>
 <div class="container">
     <header class="header">
-        <h1>Family <span>Travel Log</span></h1>
-        <p>우리 가족 여행 도감</p>
+        <h1>Family <span>Archive</span></h1>
+        <p>어느 멋진 날, 우리 가족의 발자취</p>
     </header>
 
-    <div class="toggle-btn-area">
-        <button class="btn-toggle-form" onclick="toggleForm()" id="btnToggle"><i class="fas fa-plus"></i> 새 정보 기록</button>
-    </div>
+    <button class="btn-toggle-form" onclick="toggleForm()" id="btnToggle"><i class="fas fa-magic"></i> 소중한 추억 새기기</button>
 
     <div id="form-container">
-        <div class="main-card">
-            <form id="tripForm">
-                <div class="input-grid">
-                    <div><label>유형</label><select id="category"><option value="로컬 맛집">🍕 로컬 맛집</option><option value="관광 명소">🏛️ 관광 명소</option><option value="숙소">🏨 숙소</option></select></div>
-                    <div><label>명칭(업체명)</label><input type="text" id="title" required></div>
-                    <div><label>국가</label><input type="text" id="country" required></div>
-                    <div><label>지역</label><input type="text" id="region" required></div>
-                    <div class="full"><label>상세 주소</label><input type="text" id="address"></div>
-                    <div class="full"><label>추천 정보</label><input type="text" id="info1"></div>
-                    <div class="full"><label>메모</label><textarea id="info2" rows="3"></textarea></div>
-                    <div class="full"><label>평점</label><select id="rating"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select></div>
+        <form id="tripForm">
+            <div class="input-grid">
+                <div>
+                    <label>오늘의 여정</label>
+                    <select id="category" onchange="updateUI()">
+                        <option value="로컬 맛집">🍽️ 입이 즐거운 로컬 맛집</option>
+                        <option value="관광 명소">🏛️ 가슴 설레는 관광 명소</option>
+                        <option value="숙소">🏨 꿈결 같은 스테이</option>
+                    </select>
                 </div>
-                <button type="submit" class="btn-submit" id="btnSubmit">등록하기</button>
-            </form>
-        </div>
+                
+                <div id="title-area">
+                    <label id="lbl-title">음식점 (업체명)</label>
+                    <input type="text" id="title" required placeholder="어디서 맛있는 시간을 보냈나요?">
+                </div>
+                
+                <div><label>방문 국가</label><input type="text" id="country" required placeholder="예: 대한민국"></div>
+                <div><label>방문 지역</label><input type="text" id="region" required placeholder="예: 부산 해운대"></div>
+                
+                <div class="full">
+                    <label>지도 주소</label>
+                    <input type="text" id="address" placeholder="구글 지도 주소를 넣어주시면 나중에 찾기 편해요">
+                </div>
+                
+                <div class="full" id="info1-area">
+                    <label id="lbl-info1">추천 메뉴</label>
+                    <input type="text" id="info1" placeholder="우리 가족이 꼽은 최고의 메뉴는?">
+                </div>
+                
+                <div class="full" id="info2-area">
+                    <label id="lbl-info2">우리의 미식 기록</label>
+                    <textarea id="info2" rows="3" placeholder="맛의 감동이나 아이들의 미소를 기록해 보세요"></textarea>
+                </div>
+                
+                <div class="full">
+                    <label>가족들의 마음 점수</label>
+                    <select id="rating">
+                        </select>
+                </div>
+            </div>
+            <button type="submit" class="btn-submit" id="btnSubmit">이 순간을 기록하기</button>
+        </form>
     </div>
 
     <div class="filter-area">
         <div class="filter-row">
-            <select id="fCat" onchange="runFilter()"><option value="">유형</option><option value="로컬 맛집">맛집</option><option value="관광 명소">관광</option><option value="숙소">숙소</option></select>
+            <select id="fCat" onchange="runFilter()"><option value="">전체 보기</option><option value="로컬 맛집">맛집</option><option value="관광 명소">명소</option><option value="숙소">숙소</option></select>
             <select id="fCou" onchange="runFilter()"><option value="">국가</option></select>
             <select id="fReg" onchange="runFilter()"><option value="">지역</option></select>
-            <select id="fRat" onchange="runFilter()"><option value="">평점</option><option value="5">5점</option><option value="4">4점↑</option></select>
+            <select id="fRat" onchange="runFilter()"><option value="">평점</option><option value="5">Best</option><option value="4">Good↑</option></select>
         </div>
         <div class="search-row">
-            <input type="text" id="keyword" placeholder="검색어 입력..." onkeypress="if(event.keyCode==13) runFilter()">
+            <input type="text" id="keyword" placeholder="장소나 기억을 검색해 보세요..." onkeypress="if(event.keyCode==13) runFilter()">
             <button class="btn-search" onclick="runFilter()"><i class="fas fa-search"></i></button>
         </div>
     </div>
 
-    <div id="list-container">로딩 중...</div>
-    <div id="pager" class="pager"></div>
+    <div id="list-container">여정을 불러오고 있습니다...</div>
 </div>
 
 <script>
-    // ⚠️ 여기에 본인의 구글 웹 앱 URL을 넣으세요.
     const API_URL = 'https://script.google.com/macros/s/AKfycbzvgxksUEctaH5dKQm1d76kvfQt-VkjUHN6N5_pui47KPFcl9CKwNgg37Zo-vAFv043uA/exec'; 
 
     let masterData = [];
     let filteredData = [];
-    let page = 1;
-    const limit = 10;
     let editMode = false;
     let editTarget = null;
+
+    function updateUI() {
+        const cat = document.getElementById('category').value;
+        const lblTitle = document.getElementById('lbl-title');
+        const inpTitle = document.getElementById('title');
+        const lblInfo1 = document.getElementById('lbl-info1');
+        const inpInfo1 = document.getElementById('info1');
+        const lblInfo2 = document.getElementById('lbl-info2');
+        const inpInfo2 = document.getElementById('info2');
+        const selRating = document.getElementById('rating');
+
+        if(cat === '로컬 맛집') {
+            lblTitle.innerText = "음식점 (업체명)";
+            inpTitle.placeholder = "예: 호이안 반미프엉, 부산 가야밀면";
+            lblInfo1.innerText = "추천 메뉴";
+            inpInfo1.placeholder = "입안 가득 행복했던 베스트 메뉴는?";
+            lblInfo2.innerText = "우리의 미식 기록";
+            inpInfo2.placeholder = "맛의 감동이나 가족들의 대화를 남겨보세요";
+            selRating.innerHTML = `
+                <option value="5">⭐⭐⭐⭐⭐ 인생 최고의 맛집!</option>
+                <option value="4">⭐⭐⭐⭐ 다시 방문하고 싶은 맛</option>
+                <option value="3">⭐⭐⭐ 기분 좋게 먹었습니다</option>
+                <option value="2">⭐⭐ 기대에 비해 평범했어요</option>
+                <option value="1">⭐ 저희 스타일은 아니었어요</option>`;
+        } else if(cat === '관광 명소') {
+            lblTitle.innerText = "여정의 목적지 (명소 이름)";
+            inpTitle.placeholder = "예: 루브르 박물관, 해운대 바닷가";
+            lblInfo1.innerText = "감동 포인트";
+            inpInfo1.placeholder = "어떤 장면이 가장 기억에 남나요?";
+            lblInfo2.innerText = "현장의 기록";
+            inpInfo2.placeholder = "그곳에서 느낀 설렘과 감동을 적어보세요";
+            selRating.innerHTML = `
+                <option value="5">⭐⭐⭐⭐⭐ 평생 잊지 못할 풍경</option>
+                <option value="4">⭐⭐⭐⭐ 가슴이 탁 트이는 시간</option>
+                <option value="3">⭐⭐⭐ 즐거운 산책이었습니다</option>
+                <option value="2">⭐⭐ 사람에 너무 치였어요</option>
+                <option value="1">⭐ 생각보다 아쉬운 여정</option>`;
+        } else if(cat === '숙소') {
+            lblTitle.innerText = "꿈결 같은 스테이 (숙소 이름)";
+            inpTitle.placeholder = "예: 신라 호텔, 에어비앤비 다낭";
+            lblInfo1.innerText = "숙소 타입 및 정보";
+            inpInfo1.placeholder = "예: 5성급 호텔, 수영장 빌라, 감성 스테이";
+            lblInfo2.innerText = "스테이 리포트";
+            inpInfo2.placeholder = "아늑했던 침구, 조식의 맛, 주변의 분위기까지";
+            selRating.innerHTML = `
+                <option value="5">⭐⭐⭐⭐⭐ 여기서 살고 싶어요!</option>
+                <option value="4">⭐⭐⭐⭐ 내 집 같은 편안함</option>
+                <option value="3">⭐⭐⭐ 하룻밤 잘 쉬었습니다</option>
+                <option value="2">⭐⭐ 시설이 조금 아쉬워요</option>
+                <option value="1">⭐ 위생이 실망스러웠어요</option>`;
+        }
+    }
 
     async function loadData() {
         try {
@@ -105,19 +174,15 @@
             masterData = await res.json();
             updateFilters();
             runFilter();
-        } catch (e) { document.getElementById('list-container').innerText = "데이터 로드 실패"; }
+        } catch (e) { document.getElementById('list-container').innerText = "여정을 불러오지 못했습니다."; }
     }
 
     function toggleForm() {
         const f = document.getElementById('form-container');
-        f.style.display = f.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function updateFilters() {
-        const nations = [...new Set(masterData.map(d => d.country))].sort();
-        const regions = [...new Set(masterData.map(d => d.region))].sort();
-        document.getElementById('fCou').innerHTML = '<option value="">국가</option>' + nations.map(n => `<option value="${n}">${n}</option>`).join('');
-        document.getElementById('fReg').innerHTML = '<option value="">지역</option>' + regions.map(r => `<option value="${r}">${r}</option>`).join('');
+        const isHidden = f.style.display !== 'block';
+        f.style.display = isHidden ? 'block' : 'none';
+        document.getElementById('btnToggle').innerHTML = isHidden ? '<i class="fas fa-times"></i> 닫기' : '<i class="fas fa-magic"></i> 소중한 추억 새기기';
+        if(isHidden && !editMode) updateUI();
     }
 
     function runFilter() {
@@ -128,61 +193,60 @@
         const key = document.getElementById('keyword').value.trim().toLowerCase();
 
         filteredData = masterData.filter(d => {
-            return (!cat || d.category === cat) && (!cou || d.country === cou) && (!reg || d.region === reg) && (!rat || parseInt(d.rating) >= parseInt(rat)) &&
+            return (!cat || d.category === cat) && (!cou || d.country === cou) && (!reg || d.region === reg) && 
+                   (!rat || parseInt(d.rating) >= parseInt(rat)) &&
                    (!key || (d.title && d.title.toLowerCase().includes(key)) || (d.info2 && d.info2.toLowerCase().includes(key)));
         });
-        page = 1; drawList();
+        drawList();
     }
 
     function drawList() {
-        const start = (page - 1) * limit;
-        const items = filteredData.slice().reverse().slice(start, start + limit);
+        const items = filteredData.slice().reverse();
         const container = document.getElementById('list-container');
-        if(filteredData.length === 0) { container.innerHTML = "<p style='text-align:center;'>기록이 없습니다.</p>"; return; }
+        if(items.length === 0) { container.innerHTML = "<p style='text-align:center;'>아직 기록된 추억이 없습니다.</p>"; return; }
 
-        container.innerHTML = items.map((d, i) => `
+        container.innerHTML = items.map((d, i) => {
+            let addressHtml = d.address || '-';
+            if (d.address) {
+                const mapLink = d.address.includes('http') ? d.address : `https://www.google.com/maps/search/${encodeURIComponent(d.address)}`;
+                addressHtml = `<div>${d.address}</div><a href="${mapLink}" target="_blank" class="map-btn"><i class="fas fa-map-marked-alt"></i> 구글 지도에서 위치 확인</a>`;
+            }
+
+            return `
             <div class="post-item">
                 <div class="post-header" onclick="toggleAccordion('detail-${i}')">
                     <div style="flex:1;">
                         <span class="tag ${d.category==='로컬 맛집'?'tag-food':d.category==='숙소'?'tag-stay':'tag-tour'}">${d.category}</span>
-                        <strong>${d.title}</strong>
-                        <div style="font-size:0.8rem; color:#777;">${d.country} · ${d.region}</div>
+                        <strong style="font-size:1.1rem;">${d.title}</strong>
+                        <div style="font-size:0.85rem; color:#718096; margin-top:5px;"><i class="fas fa-map-marker-alt"></i> ${d.country} · ${d.region}</div>
                     </div>
-                    <div style="text-align:right;"><div style="color:#f1c40f;">⭐ ${d.rating}</div><div style="font-size:0.7rem; color:#ccc;">${d.date}</div></div>
+                    <div style="text-align:right;">
+                        <div style="color:#f1c40f; font-weight:800;">⭐ ${d.rating}</div>
+                        <div style="font-size:0.75rem; color:#a0aec0; margin-top:5px;">${d.date || ''}</div>
+                    </div>
                 </div>
                 <div class="post-content" id="detail-${i}">
-                    <div class="detail-card"><div class="detail-label">📍 주소</div>${d.address || '-'}</div>
-                    <div class="detail-card"><div class="detail-label">📋 정보</div>${d.info1 || '-'}</div>
-                    <div class="detail-card"><div class="detail-label">📝 메모</div>${d.info2 || '-'}</div>
-                    <div style="text-align:right; margin-top:15px;">
-                        <button onclick="goEdit('${d.title}')" style="border:none; background:none; color:var(--primary); cursor:pointer;">수정</button>
-                        <button onclick="goDelete('${d.title}')" style="border:none; background:none; color:#e74c3c; cursor:pointer; margin-left:15px;">삭제</button>
+                    <div class="detail-card"><div class="detail-label">📍 위치 정보</div>${addressHtml}</div>
+                    <div class="detail-card"><div class="detail-label">✨ 주요 기록</div>${d.info1 || '-'}</div>
+                    <div class="detail-card"><div class="detail-label">📝 우리의 추억</div><div style="white-space:pre-wrap;">${d.info2 || '-'}</div></div>
+                    <div style="text-align:right; margin-top:20px;">
+                        <button onclick="goEdit('${d.title.replace(/'/g, "\\'")}')" style="border:none; background:#edf2f7; color:#4a5568; padding:10px 18px; border-radius:10px; cursor:pointer; font-weight:700;">기록 수정</button>
+                        <button onclick="goDelete('${d.title.replace(/'/g, "\\'")}')" style="border:none; background:#fff5f5; color:#e53e3e; padding:10px 18px; border-radius:10px; cursor:pointer; margin-left:12px; font-weight:700;">기록 삭제</button>
                     </div>
                 </div>
-            </div>`).join('');
-        drawPager();
-    }
-
-    function drawPager() {
-        const total = Math.ceil(filteredData.length / limit);
-        const p = document.getElementById('pager'); p.innerHTML = '';
-        for(let i=1; i<=total; i++) {
-            const btn = document.createElement('button');
-            btn.innerText = i; btn.className = `page-num ${i===page?'active':''}`;
-            btn.onclick = () => { page = i; drawList(); window.scrollTo(0,0); };
-            p.appendChild(btn);
-        }
+            </div>`}).join('');
     }
 
     function toggleAccordion(id) {
         const el = document.getElementById(id);
-        el.style.display = el.style.display === 'block' ? 'none' : 'block';
+        const isShow = el.style.display === 'block';
+        document.querySelectorAll('.post-content').forEach(c => c.style.display = 'none');
+        el.style.display = isShow ? 'none' : 'block';
     }
 
     document.getElementById('tripForm').onsubmit = async (e) => {
         e.preventDefault();
-        const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerText = "저장 중...";
-        
+        const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerText = "소중히 저장하는 중...";
         const payload = {
             action: editMode ? 'edit' : 'add',
             targetTitle: editTarget,
@@ -198,35 +262,44 @@
                 date: new Date().toLocaleDateString()
             }
         };
-
         await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
         location.reload();
     };
 
-    async function goDelete(t) {
-        event.stopPropagation();
-        if(!confirm('삭제할까요?')) return;
-        await fetch(API_URL, { method: 'POST', body: JSON.stringify({action:'delete', targetTitle:t}) });
-        location.reload();
-    }
-
     function goEdit(t) {
         event.stopPropagation();
         const d = masterData.find(x => x.title === t);
+        if(!d) return;
         document.getElementById('category').value = d.category;
+        updateUI();
         document.getElementById('title').value = d.title;
         document.getElementById('country').value = d.country;
         document.getElementById('region').value = d.region;
-        document.getElementById('address').value = d.address;
-        document.getElementById('info1').value = d.info1;
-        document.getElementById('info2').value = d.info2;
+        document.getElementById('address').value = d.address || '';
+        document.getElementById('info1').value = d.info1 || '';
+        document.getElementById('info2').value = d.info2 || '';
         document.getElementById('rating').value = d.rating;
         editMode = true; editTarget = t;
-        document.getElementById('form-container').style.display = 'block';
+        if(document.getElementById('form-container').style.display !== 'block') toggleForm();
         document.getElementById('btnSubmit').innerText = "수정 완료";
         window.scrollTo(0,0);
     }
 
+    async function goDelete(t) {
+        event.stopPropagation();
+        if(!confirm(`소중한 기록을 지울까요?`)) return;
+        await fetch(API_URL, { method: 'POST', body: JSON.stringify({action:'delete', targetTitle:t}) });
+        location.reload();
+    }
+
+    function updateFilters() {
+        const nations = [...new Set(masterData.map(d => d.country))].filter(Boolean).sort();
+        const regions = [...new Set(masterData.map(d => d.region))].filter(Boolean).sort();
+        document.getElementById('fCou').innerHTML = '<option value="">국가</option>' + nations.map(n => `<option value="${n}">${n}</option>`).join('');
+        document.getElementById('fReg').innerHTML = '<option value="">지역</option>' + regions.map(r => `<option value="${r}">${r}</option>`).join('');
+    }
+
+    updateUI();
     loadData();
 </script>
 </body>
