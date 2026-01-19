@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>우리 가족 여행 도감 V5.3</title>
+    <title>Family Travel Archive</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
@@ -13,6 +13,7 @@
         .container { max-width: 800px; margin: 0 auto; }
         .header { text-align: center; padding: 20px 0; }
         .header h1 { font-size: 2.2rem; margin: 0; font-weight: 800; color: var(--primary); }
+        .header p { color: #636e72; margin-top: 5px; font-weight: 600; font-size: 1.1rem; }
         .btn-toggle-form { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 50px; font-weight: 700; cursor: pointer; display: block; margin: 0 0 20px auto; box-shadow: 0 4px 15px rgba(9, 132, 227, 0.3); }
         #form-container { display: none; background: var(--white); border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 30px; border: 1px solid #edf2f7; }
         .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -35,6 +36,7 @@
         .post-content { display: none; padding: 25px; background: #fafbfc; border-top: 1px solid #f1f3f6; }
         .detail-card { background: #fff; border: 1px solid #edf2f7; border-radius: 12px; padding: 15px; margin-bottom: 12px; }
         .detail-label { font-size: 0.8rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+        .map-link { color: #0984e3; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
         .pager { display: flex; justify-content: center; gap: 8px; margin: 30px 0; }
         .page-num { width: 38px; height: 38px; border-radius: 10px; border: 1px solid #e2e8f0; background: #fff; cursor: pointer; font-weight: 700; }
         .page-num.active { background: var(--primary); color: white; border-color: var(--primary); }
@@ -43,43 +45,67 @@
 <body>
 <div class="container">
     <header class="header">
-        <h1>Family <span>Travel Log</span></h1>
-        <p>우리 가족 소중한 여행 기록장</p>
-    </header>
+        <h1>Family <span>Travel Archive</span></h1>
+        <p>어느 멋진 날, 우리 가족의 발자취</p> </header>
 
-    <button class="btn-toggle-form" onclick="toggleForm()" id="btnToggle"><i class="fas fa-plus"></i> 새로운 정보 기록하기</button>
-
-    <div id="form-container">
+    <button class="btn-toggle-form" onclick="toggleForm()" id="btnToggle"><i class="fas fa-magic"></i> 우리 가족 추억 새기기</button> <div id="form-container">
         <form id="tripForm">
             <div class="input-grid">
-                <div><label>유형</label><select id="category"><option value="로컬 맛집">🍕 로컬 맛집</option><option value="관광 명소">🏛️ 관광 명소</option><option value="숙소">🏨 숙소</option></select></div>
+                <div>
+                    <label>카테고리</label>
+                    <select id="category" onchange="updateUI()">
+                        <option value="로컬 맛집">🍕 입이 즐거운 로컬 맛집</option>
+                        <option value="관광 명소">🏛️ 가슴 설레는 관광 명소</option>
+                        <option value="숙소">🏨 꿈결 같은 스테이</option>
+                    </select>
+                </div>
                 
-                <div><label>장소 명칭</label><input type="text" id="title" required placeholder="음식점 또는 관광지 명칭"></div>
-                <div><label>국가</label><input type="text" id="country" required placeholder="예: 한국, 베트남, 태국"></div>
-                <div><label>지역</label><input type="text" id="region" required placeholder="예: 부산, 다낭, 방콕"></div>
-                <div class="full"><label>상세 주소</label><input type="text" id="address" placeholder="구글지도 주소를 붙여넣으세요"></div>
-                <div class="full"><label>추천 정보 / 한줄평</label><input type="text" id="info1" placeholder="추천 메뉴나 장소의 특징"></div>
-                <div class="full"><label>상세 메모</label><textarea id="info2" rows="3" placeholder="가족들의 솔직한 후기를 적어주세요"></textarea></div>
-                <div class="full"><label>가족 평점</label><select id="rating"><option value="5">⭐⭐⭐⭐⭐ (강력 추천)</option><option value="4">⭐⭐⭐⭐ (좋아요)</option><option value="3">⭐⭐⭐ (보통이에요)</option><option value="2">⭐⭐ (아쉬워요)</option><option value="1">⭐ (비추천)</option></select></div>
+                <div id="title-area">
+                    <label id="lbl-title">음식점 (업체명)</label>
+                    <input type="text" id="title" required placeholder="예: 해운대 가야밀면">
+                </div>
+                
+                <div><label>방문 국가</label><input type="text" id="country" required placeholder="예: 대한민국, 일본"></div>
+                <div><label>방문 지역</label><input type="text" id="region" required placeholder="예: 부산 해운대, 오사카"></div>
+                
+                <div class="full">
+                    <label>지도 주소</label>
+                    <input type="text" id="address" placeholder="구글 지도 주소나 장소 링크를 넣어주세요">
+                </div>
+                
+                <div class="full" id="info1-area">
+                    <label id="lbl-info1">시그니처 메뉴</label>
+                    <input type="text" id="info1" placeholder="가장 맛있었던 메뉴는 무엇인가요?">
+                </div>
+                
+                <div class="full" id="info2-area">
+                    <label id="lbl-info2">우리의 미식 기록</label>
+                    <textarea id="info2" rows="3" placeholder="맛의 특징이나 아이들의 반응을 남겨보세요"></textarea>
+                </div>
+                
+                <div class="full">
+                    <label>가족들의 별점 점수</label>
+                    <select id="rating">
+                        </select>
+                </div>
             </div>
-            <button type="submit" class="btn-submit" id="btnSubmit">기록 저장하기</button>
-        </form>
+            <button type="submit" class="btn-submit" id="btnSubmit">이 순간을 기록하기</button> </form>
     </div>
 
     <div class="filter-area">
         <div class="filter-row">
-            <select id="fCat" onchange="runFilter()"><option value="">전체 유형</option><option value="로컬 맛집">맛집</option><option value="관광 명소">관광</option><option value="숙소">숙소</option></select>
+            <select id="fCat" onchange="runFilter()"><option value="">모든 기록</option><option value="로컬 맛집">맛집</option><option value="관광 명소">관광</option><option value="숙소">숙소</option></select>
             <select id="fCou" onchange="runFilter()"><option value="">국가</option></select>
             <select id="fReg" onchange="runFilter()"><option value="">지역</option></select>
-            <select id="fRat" onchange="runFilter()"><option value="">평점</option><option value="5">5점만</option><option value="4">4점↑</option></select>
+            <select id="fRat" onchange="runFilter()"><option value="">평점</option><option value="5">Best</option><option value="4">Good↑</option></select>
         </div>
         <div class="search-row">
-            <input type="text" id="keyword" placeholder="장소, 내용, 메모 검색..." onkeypress="if(event.keyCode==13) runFilter()">
+            <input type="text" id="keyword" placeholder="장소, 추억, 한줄평 검색..." onkeypress="if(event.keyCode==13) runFilter()">
             <button class="btn-search" onclick="runFilter()"><i class="fas fa-search"></i></button>
         </div>
     </div>
 
-    <div id="list-container">데이터를 불러오는 중입니다...</div>
+    <div id="list-container">추억 여행을 준비 중입니다...</div>
     <div id="pager" class="pager"></div>
 </div>
 
@@ -93,20 +119,74 @@
     let editMode = false;
     let editTarget = null;
 
+    // 카테고리별 UI 변경 (라벨, 플레이스홀더, 별점 멘트)
+    function updateUI() {
+        const cat = document.getElementById('category').value;
+        const lblTitle = document.getElementById('lbl-title');
+        const inpTitle = document.getElementById('title');
+        const lblInfo1 = document.getElementById('lbl-info1');
+        const inpInfo1 = document.getElementById('info1');
+        const lblInfo2 = document.getElementById('lbl-info2');
+        const inpInfo2 = document.getElementById('info2');
+        const selRating = document.getElementById('rating');
+
+        if(cat === '로컬 맛집') {
+            lblTitle.innerText = "음식점 (업체명)";
+            inpTitle.placeholder = "예: 해운대 가야밀면";
+            lblInfo1.innerText = "추천 메뉴";
+            inpInfo1.placeholder = "꼭 먹어봐야 할 메뉴를 적어주세요";
+            lblInfo2.innerText = "우리의 미식 기록";
+            inpInfo2.placeholder = "맛의 특징이나 가족들의 반응을 남겨주세요";
+            selRating.innerHTML = `
+                <option value="5">⭐⭐⭐⭐⭐ 인생 최고의 맛집!</option>
+                <option value="4">⭐⭐⭐⭐ 다시 가고 싶은 맛</option>
+                <option value="3">⭐⭐⭐ 한 번쯤 먹어볼 만해요</option>
+                <option value="2">⭐⭐ 기대보다는 평범했어요</option>
+                <option value="1">⭐ 저희 스타일은 아니었어요</option>`;
+        } else if(cat === '관광 명소') {
+            lblTitle.innerText = "스팟 명칭";
+            inpTitle.placeholder = "예: 해운대 해수욕장, 루브르 박물관";
+            lblInfo1.innerText = "감동 포인트";
+            inpInfo1.placeholder = "이곳에서 무엇이 가장 좋았나요?";
+            lblInfo2.innerText = "여정의 순간들";
+            inpInfo2.placeholder = "현장에서 느꼈던 감동과 꿀팁을 기록하세요";
+            selRating.innerHTML = `
+                <option value="5">⭐⭐⭐⭐⭐ 평생 잊지 못할 풍경</option>
+                <option value="4">⭐⭐⭐⭐ 가슴이 탁 트이는 명소</option>
+                <option value="3">⭐⭐⭐ 산책하기 좋은 곳</option>
+                <option value="2">⭐⭐ 사람에 너무 치였어요</option>
+                <option value="1">⭐ 생각보다 실망스러워요</option>`;
+        } else if(cat === '숙소') {
+            lblTitle.innerText = "스테이 이름";
+            inpTitle.placeholder = "예: 파크하얏트 부산, 에어비앤비 다낭";
+            lblInfo1.innerText = "숙소 타입 및 등급";
+            inpInfo1.placeholder = "예: 5성급 호텔, 독채 에어비앤비 등";
+            lblInfo2.innerText = "스테이 리포트";
+            inpInfo2.placeholder = "룸 컨디션, 조식, 주변 분위기는 어땠나요?";
+            selRating.innerHTML = `
+                <option value="5">⭐⭐⭐⭐⭐ 여기서 살고 싶어요!</option>
+                <option value="4">⭐⭐⭐⭐ 매우 쾌적하고 편안했어요</option>
+                <option value="3">⭐⭐⭐ 무난하게 하룻밤 잘 지냈어요</option>
+                <option value="2">⭐⭐ 가성비가 조금 아쉽네요</option>
+                <option value="1">⭐ 위생이나 서비스가 별로였어요</option>`;
+        }
+    }
+
     async function loadData() {
         try {
             const res = await fetch(API_URL);
             masterData = await res.json();
             updateFilters();
             runFilter();
-        } catch (e) { document.getElementById('list-container').innerText = "로드 실패."; }
+        } catch (e) { document.getElementById('list-container').innerText = "추억을 불러오는 데 실패했습니다."; }
     }
 
     function toggleForm() {
         const f = document.getElementById('form-container');
         const isHidden = f.style.display !== 'block';
         f.style.display = isHidden ? 'block' : 'none';
-        document.getElementById('btnToggle').innerHTML = isHidden ? '<i class="fas fa-times"></i> 닫기' : '<i class="fas fa-plus"></i> 새로운 정보 기록하기';
+        document.getElementById('btnToggle').innerHTML = isHidden ? '<i class="fas fa-times"></i> 닫기' : '<i class="fas fa-magic"></i> 우리 가족 추억 새기기';
+        if(isHidden) updateUI();
     }
 
     function updateFilters() {
@@ -135,15 +215,23 @@
         const start = (page - 1) * limit;
         const items = filteredData.slice().reverse().slice(start, start + limit);
         const container = document.getElementById('list-container');
-        if(filteredData.length === 0) { container.innerHTML = "<p style='text-align:center;'>기록이 없습니다.</p>"; return; }
+        if(filteredData.length === 0) { container.innerHTML = "<p style='text-align:center;'>저장된 추억이 없습니다.</p>"; return; }
 
-        container.innerHTML = items.map((d, i) => `
+        container.innerHTML = items.map((d, i) => {
+            // 구글 지도 주소 링크 기능 추가
+            let addressHtml = '-';
+            if (d.address) {
+                const mapUrl = d.address.includes('http') ? d.address : `https://www.google.com/maps/search/${encodeURIComponent(d.address)}`;
+                addressHtml = `<a href="${mapUrl}" target="_blank" class="map-link"><i class="fas fa-external-link-alt"></i> 지도에서 위치 보기</a><br>${d.address}`;
+            }
+
+            return `
             <div class="post-item">
                 <div class="post-header" onclick="toggleAccordion('detail-${i}')">
                     <div style="flex:1;">
                         <span class="tag ${d.category==='로컬 맛집'?'tag-food':d.category==='숙소'?'tag-stay':'tag-tour'}">${d.category}</span>
-                        <strong>${d.title}</strong>
-                        <div style="font-size:0.8rem; color:#718096; margin-top:4px;"><i class="fas fa-map-marker-alt"></i> ${d.country} · ${d.region}</div>
+                        <strong style="font-size:1.1rem;">${d.title}</strong>
+                        <div style="font-size:0.85rem; color:#718096; margin-top:4px;"><i class="fas fa-map-marker-alt"></i> ${d.country} · ${d.region}</div>
                     </div>
                     <div style="text-align:right;">
                         <div style="color:#f1c40f; font-weight:800;">⭐ ${d.rating}</div>
@@ -151,15 +239,15 @@
                     </div>
                 </div>
                 <div class="post-content" id="detail-${i}">
-                    <div class="detail-card"><div class="detail-label">📍 상세 주소</div>${d.address || '-'}</div>
-                    <div class="detail-card"><div class="detail-label">📋 추천 정보</div>${d.info1 || '-'}</div>
-                    <div class="detail-card"><div class="detail-label">📝 메모</div><div style="white-space:pre-wrap;">${d.info2 || '-'}</div></div>
+                    <div class="detail-card"><div class="detail-label">📍 위치 정보</div>${addressHtml}</div>
+                    <div class="detail-card"><div class="detail-label">✨ 주요 정보</div>${d.info1 || '-'}</div>
+                    <div class="detail-card"><div class="detail-label">📝 기록된 추억</div><div style="white-space:pre-wrap;">${d.info2 || '-'}</div></div>
                     <div style="text-align:right; margin-top:20px;">
-                        <button onclick="goEdit('${d.title.replace(/'/g, "\\'")}')" style="border:none; background:#edf2f7; color:#4a5568; padding:8px 15px; border-radius:8px; cursor:pointer;">수정</button>
-                        <button onclick="goDelete('${d.title.replace(/'/g, "\\'")}')" style="border:none; background:#fff5f5; color:#e53e3e; padding:8px 15px; border-radius:8px; cursor:pointer; margin-left:10px;">삭제</button>
+                        <button onclick="goEdit('${d.title.replace(/'/g, "\\'")}')" style="border:none; background:#edf2f7; color:#4a5568; padding:8px 15px; border-radius:8px; cursor:pointer;">기록 수정</button>
+                        <button onclick="goDelete('${d.title.replace(/'/g, "\\'")}')" style="border:none; background:#fff5f5; color:#e53e3e; padding:8px 15px; border-radius:8px; cursor:pointer; margin-left:10px;">기록 삭제</button>
                     </div>
                 </div>
-            </div>`).join('');
+            </div>`}).join('');
         drawPager();
     }
 
@@ -183,7 +271,7 @@
 
     document.getElementById('tripForm').onsubmit = async (e) => {
         e.preventDefault();
-        const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerText = "데이터 처리 중...";
+        const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerText = "추억을 저장 중입니다...";
         
         const payload = {
             action: editMode ? 'edit' : 'add',
@@ -206,7 +294,7 @@
 
     async function goDelete(t) {
         event.stopPropagation();
-        if(!confirm(`삭제할까요?`)) return;
+        if(!confirm(`소중한 기록을 지울까요?`)) return;
         await fetch(API_URL, { method: 'POST', body: JSON.stringify({action:'delete', targetTitle:t}) });
         location.reload();
     }
@@ -216,6 +304,7 @@
         const d = masterData.find(x => x.title === t);
         if(!d) return;
         document.getElementById('category').value = d.category;
+        updateUI(); // 라벨 맞춤 변경
         document.getElementById('title').value = d.title;
         document.getElementById('country').value = d.country;
         document.getElementById('region').value = d.region;
@@ -229,6 +318,7 @@
         window.scrollTo(0,0);
     }
 
+    updateUI(); // 초기 실행 시 UI 설정
     loadData();
 </script>
 </body>
