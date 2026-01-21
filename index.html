@@ -11,45 +11,22 @@
         * { font-family: 'Pretendard', sans-serif !important; box-sizing: border-box; letter-spacing: -0.5px; }
         body { background: var(--bg); margin: 0; padding: 20px; color: var(--dark); line-height: 1.6; }
         .container { max-width: 800px; margin: 0 auto; }
-        
-        /* 헤더 스타일 */
         .header { text-align: center; padding: 30px 0; }
         .header h1 { font-size: 2.2rem; margin: 0; font-weight: 800; color: var(--primary); }
         .header p { color: #636e72; margin-top: 8px; font-weight: 500; font-size: 1.1rem; }
-        
-        /* 버튼 및 폼 스타일 */
-        .btn-toggle-form { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 50px; font-weight: 700; cursor: pointer; display: block; margin: 0 0 25px auto; box-shadow: 0 4px 15px rgba(9, 132, 227, 0.3); }
+        .btn-toggle-form { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 50px; font-weight: 700; cursor: pointer; display: block; margin: 0 0 25px auto; box-shadow: 0 4px 15px rgba(9, 132, 227, 0.3); transition: 0.2s; }
         #form-container { display: none; background: var(--white); border-radius: 24px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 30px; border: 1px solid #edf2f7; }
         .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
         .full { grid-column: span 2; }
         label { display: block; margin-bottom: 8px; font-size: 0.85rem; font-weight: 700; color: #4a5568; }
         input, select, textarea { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 14px; font-size: 14px; background: #fdfdfd; }
         .btn-submit { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; }
-
-        /* [수정] 검색 필터 영역 - 글자 잘림 방지 */
         .filter-area { background: #fff; padding: 15px; border-radius: 22px; margin-bottom: 25px; border: 1px solid #edf2f7; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
-        .filter-row { 
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 6px; 
-            margin-bottom: 12px; 
-        }
-        .filter-row select { 
-            padding: 10px 2px; 
-            /* 뷰포트 너비(vw)에 따라 폰트 크기가 조절되도록 설정하여 잘림 방지 */
-            font-size: clamp(10px, 3.2vw, 13px); 
-            text-align: center; 
-            border-radius: 12px; 
-            background: #f8fafc; 
-            border: 1px solid #eee;
-            appearance: none; /* 기본 화살표 제거로 공간 확보 */
-            text-indent: 1px;
-        }
+        .filter-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
+        .filter-row select { padding: 10px 2px; font-size: clamp(10px, 3.2vw, 13px); text-align: center; border-radius: 12px; background: #f8fafc; border: 1px solid #eee; appearance: none; text-indent: 1px; }
         .search-row { display: flex; gap: 8px; }
         .search-row input { flex: 1; height: 46px; border-radius: 23px; padding-left: 18px; border: 1px solid #e2e8f0; font-size: 14px; }
         .btn-search { width: 46px; height: 46px; background: var(--primary); color: white; border: none; border-radius: 50%; cursor: pointer; }
-
-        /* 리스트 스타일 */
         .post-item { background: var(--white); border-radius: 20px; margin-bottom: 15px; border: 1px solid #edf2f7; overflow: hidden; }
         .post-header { padding: 22px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
         .tag { padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; margin-right: 10px; }
@@ -60,12 +37,13 @@
         .detail-card { background: #fff; border: 1px solid #edf2f7; border-radius: 15px; padding: 18px; margin-bottom: 12px; }
         .detail-label { font-size: 0.8rem; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
         .map-btn { display: inline-flex; align-items: center; gap: 6px; background: #e1f0ff; color: #0984e3; padding: 8px 15px; border-radius: 10px; text-decoration: none; font-size: 0.85rem; font-weight: 700; margin-top: 10px; }
+
+        /* 페이지네이션 스타일 추가 */
+        .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 30px; margin-bottom: 40px; }
+        .page-btn { width: 36px; height: 36px; border-radius: 10px; border: 1px solid #e2e8f0; background: #fff; color: #718096; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .page-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
         
-        /* 반응형 미디어 쿼리 추가 */
-        @media screen and (max-width: 380px) {
-            .filter-row { gap: 4px; }
-            .filter-row select { padding: 8px 1px; }
-        }
+        @media screen and (max-width: 380px) { .filter-row { gap: 4px; } .filter-row select { padding: 8px 1px; } }
     </style>
 </head>
 <body>
@@ -88,34 +66,27 @@
                         <option value="숙소">🏨 꿈결 같은 스테이</option>
                     </select>
                 </div>
-                
                 <div id="title-area">
                     <label id="lbl-title">음식점 (업체명)</label>
                     <input type="text" id="title" required placeholder="어디서 맛있는 시간을 보냈나요?">
                 </div>
-                
                 <div><label>방문 국가</label><input type="text" id="country" required placeholder="예: 대한민국"></div>
                 <div><label>방문 지역</label><input type="text" id="region" required placeholder="예: 부산 해운대"></div>
-                
                 <div class="full">
                     <label>지도 주소</label>
                     <input type="text" id="address" placeholder="구글 지도 주소를 넣어주시면 나중에 찾기 편해요">
                 </div>
-                
                 <div class="full" id="info1-area">
                     <label id="lbl-info1">추천 메뉴</label>
                     <input type="text" id="info1" placeholder="우리 가족이 꼽은 최고의 메뉴는?">
                 </div>
-                
                 <div class="full" id="info2-area">
                     <label id="lbl-info2">우리의 미식 기록</label>
                     <textarea id="info2" rows="3" placeholder="맛의 감동이나 아이들의 미소를 기록해 보세요"></textarea>
                 </div>
-                
                 <div class="full">
                     <label>가족들의 마음 점수</label>
-                    <select id="rating">
-                        </select>
+                    <select id="rating"></select>
                 </div>
             </div>
             <button type="submit" class="btn-submit" id="btnSubmit">이 순간을 기록하기</button>
@@ -124,18 +95,19 @@
 
     <div class="filter-area">
         <div class="filter-row">
-            <select id="fCat" onchange="runFilter()"><option value="">전체 유형</option><option value="로컬 맛집">맛집</option><option value="관광 명소">명소</option><option value="숙소">숙소</option></select>
-            <select id="fCou" onchange="runFilter()"><option value="">국가 선택</option></select>
-            <select id="fReg" onchange="runFilter()"><option value="">지역 선택</option></select>
-            <select id="fRat" onchange="runFilter()"><option value="">평점순</option><option value="5">Best</option><option value="4">Good↑</option></select>
+            <select id="fCat" onchange="resetAndFilter()"><option value="">전체 유형</option><option value="로컬 맛집">맛집</option><option value="관광 명소">명소</option><option value="숙소">숙소</option></select>
+            <select id="fCou" onchange="resetAndFilter()"><option value="">국가 선택</option></select>
+            <select id="fReg" onchange="resetAndFilter()"><option value="">지역 선택</option></select>
+            <select id="fRat" onchange="resetAndFilter()"><option value="">평점순</option><option value="5">Best</option><option value="4">Good↑</option></select>
         </div>
         <div class="search-row">
-            <input type="text" id="keyword" placeholder="장소나 기억을 검색해 보세요..." onkeypress="if(event.keyCode==13) runFilter()">
-            <button class="btn-search" onclick="runFilter()"><i class="fas fa-search"></i></button>
+            <input type="text" id="keyword" placeholder="장소나 기억을 검색해 보세요..." onkeypress="if(event.keyCode==13) resetAndFilter()">
+            <button class="btn-search" onclick="resetAndFilter()"><i class="fas fa-search"></i></button>
         </div>
     </div>
 
     <div id="list-container">여정을 불러오고 있습니다...</div>
+    <div id="pagination" class="pagination"></div>
 </div>
 
 <script>
@@ -145,6 +117,10 @@
     let filteredData = [];
     let editMode = false;
     let editTarget = null;
+    
+    // 페이지네이션 변수
+    let currentPage = 1;
+    const postsPerPage = 10;
 
     function updateUI() {
         const cat = document.getElementById('category').value;
@@ -200,6 +176,12 @@
         if(isHidden && !editMode) updateUI();
     }
 
+    // 필터 변경 시 1페이지로 리셋하고 검색
+    function resetAndFilter() {
+        currentPage = 1;
+        runFilter();
+    }
+
     function runFilter() {
         const cat = document.getElementById('fCat').value;
         const cou = document.getElementById('fCou').value;
@@ -216,11 +198,21 @@
     }
 
     function drawList() {
-        const items = filteredData.slice().reverse();
-        const container = document.getElementById('list-container');
-        if(items.length === 0) { container.innerHTML = "<p style='text-align:center;'>기록이 없습니다.</p>"; return; }
+        const reversedData = filteredData.slice().reverse();
+        
+        // 페이지네이션 계산
+        const startIndex = (currentPage - 1) * postsPerPage;
+        const endIndex = startIndex + postsPerPage;
+        const itemsToShow = reversedData.slice(startIndex, endIndex);
 
-        container.innerHTML = items.map((d, i) => {
+        const container = document.getElementById('list-container');
+        if(filteredData.length === 0) { 
+            container.innerHTML = "<p style='text-align:center;'>기록이 없습니다.</p>"; 
+            document.getElementById('pagination').innerHTML = "";
+            return; 
+        }
+
+        container.innerHTML = itemsToShow.map((d, i) => {
             let addressHtml = d.address || '-';
             if (d.address) {
                 const mapLink = d.address.includes('http') ? d.address : `https://www.google.com/maps/search/${encodeURIComponent(d.address)}`;
@@ -250,6 +242,29 @@
                     </div>
                 </div>
             </div>`}).join('');
+        
+        drawPagination();
+    }
+
+    // 페이지네이션 버튼 생성
+    function drawPagination() {
+        const totalPages = Math.ceil(filteredData.length / postsPerPage);
+        const paginationContainer = document.getElementById('pagination');
+        paginationContainer.innerHTML = "";
+
+        if (totalPages <= 1) return;
+
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.innerText = i;
+            btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+            btn.onclick = () => {
+                currentPage = i;
+                drawList();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+            paginationContainer.appendChild(btn);
+        }
     }
 
     function toggleAccordion(id) {
