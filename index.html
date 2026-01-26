@@ -26,6 +26,7 @@
         .search-row { display: flex; gap: 10px; }
         .search-row input { flex: 1; height: 50px; border-radius: 25px; padding-left: 22px; border: 1px solid #e2e8f0; }
         .btn-search { width: 50px; height: 50px; background: var(--primary); color: white; border: none; border-radius: 50%; cursor: pointer; }
+        
         .post-item { background: var(--white); border-radius: 20px; margin-bottom: 15px; border: 1px solid #edf2f7; overflow: hidden; }
         .post-header { padding: 22px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
         .tag { padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; margin-right: 10px; }
@@ -36,6 +37,10 @@
         .detail-card { background: #fff; border: 1px solid #edf2f7; border-radius: 15px; padding: 18px; margin-bottom: 12px; }
         .detail-label { font-size: 0.8rem; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
         .map-btn { display: inline-flex; align-items: center; gap: 6px; background: #e1f0ff; color: #0984e3; padding: 8px 15px; border-radius: 10px; text-decoration: none; font-size: 0.85rem; font-weight: 700; margin-top: 10px; }
+        
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 20px; }
+        .pagination button { padding: 8px 16px; border-radius: 8px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-weight: 600; }
+        .pagination button:disabled { background: #f5f7fa; color: #a0aec0; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -84,8 +89,7 @@
                 
                 <div class="full">
                     <label>가족들의 마음 점수</label>
-                    <select id="rating">
-                        </select>
+                    <select id="rating"></select>
                 </div>
             </div>
             <button type="submit" class="btn-submit" id="btnSubmit">이 순간을 기록하기</button>
@@ -95,8 +99,8 @@
     <div class="filter-area">
         <div class="filter-row">
             <select id="fCat" onchange="runFilter()"><option value="">전체 보기</option><option value="로컬 맛집">맛집</option><option value="관광 명소">명소</option><option value="숙소">숙소</option></select>
-            <select id="fCou" onchange="runFilter()"><option value="">국가</option></select>
-            <select id="fReg" onchange="runFilter()"><option value="">지역</option></select>
+            <select id="fCou" onchange="runFilter()"><option value="">국가 선택</option></select>
+            <select id="fReg" onchange="runFilter()"><option value="">지역 선택</option></select>
             <select id="fRat" onchange="runFilter()"><option value="">평점</option><option value="5">Best</option><option value="4">Good↑</option></select>
         </div>
         <div class="search-row">
@@ -106,13 +110,16 @@
     </div>
 
     <div id="list-container">여정을 불러오고 있습니다...</div>
+    <div id="pagination" class="pagination"></div>
 </div>
 
 <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzwimSdw5Up2vunAbBQamJkchYRcMI6yYZLCyy9G8PoE5o_z_IkfSsPiLsKoQJ8t1imPA/exec'; 
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxPe21RpOs0Sd7520GlWQ4-L04la_Vew9El8-_NTPU5oRa31EsDpaY6NrG4UGLTvzyd-A/exec'; 
 
     let masterData = [];
     let filteredData = [];
+    let currentPage = 1;
+    const postsPerPage = 10;
     let editMode = false;
     let editTarget = null;
 
@@ -197,15 +204,27 @@
                    (!rat || parseInt(d.rating) >= parseInt(rat)) &&
                    (!key || (d.title && d.title.toLowerCase().includes(key)) || (d.info2 && d.info2.toLowerCase().includes(key)));
         });
+        currentPage = 1;
         drawList();
     }
 
+    // [중요] 최신순 정렬 및 10개씩 보여주는 drawList 함수
     function drawList() {
-        const items = filteredData.slice().reverse();
-        const container = document.getElementById('list-container');
-        if(items.length === 0) { container.innerHTML = "<p style='text-align:center;'>아직 기록된 추억이 없습니다.</p>"; return; }
+        // 날짜 기준 최신순 정렬 (b-a)
+        const sortedData = filteredData.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        const startIndex = (currentPage - 1) * postsPerPage;
+        const endIndex = startIndex + postsPerPage;
+        const itemsToShow = sortedData.slice(startIndex, endIndex);
 
-        container.innerHTML = items.map((d, i) => {
+        const container = document.getElementById('list-container');
+        if(filteredData.length === 0) { 
+            container.innerHTML = "<p style='text-align:center;'>기록이 없습니다.</p>"; 
+            document.getElementById('pagination').innerHTML = "";
+            return; 
+        }
+
+        container.innerHTML = itemsToShow.map((d, i) => {
             let addressHtml = d.address || '-';
             if (d.address) {
                 const mapLink = d.address.includes('http') ? d.address : `https://www.google.com/maps/search/${encodeURIComponent(d.address)}`;
@@ -235,6 +254,26 @@
                     </div>
                 </div>
             </div>`}).join('');
+        
+        drawPagination();
+    }
+
+    function drawPagination() {
+        const totalPages = Math.ceil(filteredData.length / postsPerPage);
+        const container = document.getElementById('pagination');
+        if(totalPages <= 1) { container.innerHTML = ""; return; }
+
+        container.innerHTML = `
+            <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>이전</button>
+            <span>${currentPage} / ${totalPages}</span>
+            <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>다음</button>
+        `;
+    }
+
+    function changePage(page) {
+        currentPage = page;
+        drawList();
+        window.scrollTo(0,0);
     }
 
     function toggleAccordion(id) {
@@ -295,8 +334,8 @@
     function updateFilters() {
         const nations = [...new Set(masterData.map(d => d.country))].filter(Boolean).sort();
         const regions = [...new Set(masterData.map(d => d.region))].filter(Boolean).sort();
-        document.getElementById('fCou').innerHTML = '<option value="">국가</option>' + nations.map(n => `<option value="${n}">${n}</option>`).join('');
-        document.getElementById('fReg').innerHTML = '<option value="">지역</option>' + regions.map(r => `<option value="${r}">${r}</option>`).join('');
+        document.getElementById('fCou').innerHTML = '<option value="">국가 선택</option>' + nations.map(n => `<option value="${n}">${n}</option>`).join('');
+        document.getElementById('fReg').innerHTML = '<option value="">지역 선택</option>' + regions.map(r => `<option value="${r}">${r}</option>`).join('');
     }
 
     updateUI();
