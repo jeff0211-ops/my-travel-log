@@ -21,12 +21,12 @@
         label { display: block; margin-bottom: 8px; font-size: 0.85rem; font-weight: 700; color: #4a5568; }
         input, select, textarea { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 14px; font-size: 14px; background: #fdfdfd; }
         .btn-submit { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; }
-        .filter-area { background: #fff; padding: 20px; border-radius: 22px; margin-bottom: 25px; border: 1px solid #edf2f7; }
-        .filter-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
-        .search-row { display: flex; gap: 10px; }
-        .search-row input { flex: 1; height: 50px; border-radius: 25px; padding-left: 22px; border: 1px solid #e2e8f0; }
-        .btn-search { width: 50px; height: 50px; background: var(--primary); color: white; border: none; border-radius: 50%; cursor: pointer; }
-        
+        .filter-area { background: #fff; padding: 15px; border-radius: 22px; margin-bottom: 25px; border: 1px solid #edf2f7; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+        .filter-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
+        .filter-row select { padding: 10px 2px; font-size: clamp(10px, 3.2vw, 13px); text-align: center; border-radius: 12px; background: #f8fafc; border: 1px solid #eee; appearance: none; text-indent: 1px; }
+        .search-row { display: flex; gap: 8px; }
+        .search-row input { flex: 1; height: 46px; border-radius: 23px; padding-left: 18px; border: 1px solid #e2e8f0; font-size: 14px; }
+        .btn-search { width: 46px; height: 46px; background: var(--primary); color: white; border: none; border-radius: 50%; cursor: pointer; }
         .post-item { background: var(--white); border-radius: 20px; margin-bottom: 15px; border: 1px solid #edf2f7; overflow: hidden; }
         .post-header { padding: 22px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
         .tag { padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; margin-right: 10px; }
@@ -37,10 +37,17 @@
         .detail-card { background: #fff; border: 1px solid #edf2f7; border-radius: 15px; padding: 18px; margin-bottom: 12px; }
         .detail-label { font-size: 0.8rem; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
         .map-btn { display: inline-flex; align-items: center; gap: 6px; background: #e1f0ff; color: #0984e3; padding: 8px 15px; border-radius: 10px; text-decoration: none; font-size: 0.85rem; font-weight: 700; margin-top: 10px; }
+
+        /* 페이지네이션 디자인 수정 */
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 30px; margin-bottom: 40px; }
+        .page-btn { min-width: 38px; height: 38px; border-radius: 50%; border: 1px solid #e2e8f0; background: #fff; color: #718096; font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; justify-content: center; align-items: center; padding: 0 10px; }
+        .page-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 10px rgba(9, 132, 227, 0.2); }
+        .page-btn:hover:not(:disabled) { background: #f0f7ff; color: var(--primary); border-color: var(--primary); }
+        .page-btn:disabled { background: #f5f7fa; color: #cbd5e0; cursor: not-allowed; border-color: #e2e8f0; }
+        /* 이전/다음 버튼 텍스트 스타일 */
+        .arrow-text-btn { border-radius: 12px; min-width: 70px; background: #eef2f7; color: var(--primary); border: none; font-size: 0.85rem; }
         
-        .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 20px; }
-        .pagination button { padding: 8px 16px; border-radius: 8px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-weight: 600; }
-        .pagination button:disabled { background: #f5f7fa; color: #a0aec0; cursor: not-allowed; }
+        @media screen and (max-width: 380px) { .filter-row { gap: 4px; } .filter-row select { padding: 8px 1px; } }
     </style>
 </head>
 <body>
@@ -63,30 +70,24 @@
                         <option value="숙소">🏨 꿈결 같은 스테이</option>
                     </select>
                 </div>
-                
                 <div id="title-area">
                     <label id="lbl-title">음식점 (업체명)</label>
                     <input type="text" id="title" required placeholder="어디서 맛있는 시간을 보냈나요?">
                 </div>
-                
                 <div><label>방문 국가</label><input type="text" id="country" required placeholder="예: 대한민국"></div>
                 <div><label>방문 지역</label><input type="text" id="region" required placeholder="예: 부산 해운대"></div>
-                
                 <div class="full">
                     <label>지도 주소</label>
                     <input type="text" id="address" placeholder="구글 지도 주소를 넣어주시면 나중에 찾기 편해요">
                 </div>
-                
                 <div class="full" id="info1-area">
                     <label id="lbl-info1">추천 메뉴</label>
                     <input type="text" id="info1" placeholder="우리 가족이 꼽은 최고의 메뉴는?">
                 </div>
-                
                 <div class="full" id="info2-area">
                     <label id="lbl-info2">우리의 미식 기록</label>
                     <textarea id="info2" rows="3" placeholder="맛의 감동이나 아이들의 미소를 기록해 보세요"></textarea>
                 </div>
-                
                 <div class="full">
                     <label>가족들의 마음 점수</label>
                     <select id="rating"></select>
@@ -98,14 +99,14 @@
 
     <div class="filter-area">
         <div class="filter-row">
-            <select id="fCat" onchange="runFilter()"><option value="">전체 보기</option><option value="로컬 맛집">맛집</option><option value="관광 명소">명소</option><option value="숙소">숙소</option></select>
-            <select id="fCou" onchange="runFilter()"><option value="">국가 선택</option></select>
-            <select id="fReg" onchange="runFilter()"><option value="">지역 선택</option></select>
-            <select id="fRat" onchange="runFilter()"><option value="">평점</option><option value="5">Best</option><option value="4">Good↑</option></select>
+            <select id="fCat" onchange="resetAndFilter()"><option value="">전체 유형</option><option value="로컬 맛집">맛집</option><option value="관광 명소">명소</option><option value="숙소">숙소</option></select>
+            <select id="fCou" onchange="resetAndFilter()"><option value="">국가 선택</option></select>
+            <select id="fReg" onchange="resetAndFilter()"><option value="">지역 선택</option></select>
+            <select id="fRat" onchange="resetAndFilter()"><option value="">평점순</option><option value="5">Best</option><option value="4">Good↑</option></select>
         </div>
         <div class="search-row">
-            <input type="text" id="keyword" placeholder="장소나 기억을 검색해 보세요..." onkeypress="if(event.keyCode==13) runFilter()">
-            <button class="btn-search" onclick="runFilter()"><i class="fas fa-search"></i></button>
+            <input type="text" id="keyword" placeholder="장소나 기억을 검색해 보세요..." onkeypress="if(event.keyCode==13) resetAndFilter()">
+            <button class="btn-search" onclick="resetAndFilter()"><i class="fas fa-search"></i></button>
         </div>
     </div>
 
@@ -114,14 +115,15 @@
 </div>
 
 <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxPe21RpOs0Sd7520GlWQ4-L04la_Vew9El8-_NTPU5oRa31EsDpaY6NrG4UGLTvzyd-A/exec'; 
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzOHtg5wp_zj03ScG0hwe9HpijqxB8joQJFiMQx_3WvtDFymTqxj511aH1RgaVFpi9F/exec'; 
 
     let masterData = [];
     let filteredData = [];
-    let currentPage = 1;
-    const postsPerPage = 10;
     let editMode = false;
     let editTarget = null;
+    
+    let currentPage = 1;
+    const postsPerPage = 10;
 
     function updateUI() {
         const cat = document.getElementById('category').value;
@@ -140,12 +142,7 @@
             inpInfo1.placeholder = "입안 가득 행복했던 베스트 메뉴는?";
             lblInfo2.innerText = "우리의 미식 기록";
             inpInfo2.placeholder = "맛의 감동이나 가족들의 대화를 남겨보세요";
-            selRating.innerHTML = `
-                <option value="5">⭐⭐⭐⭐⭐ 인생 최고의 맛집!</option>
-                <option value="4">⭐⭐⭐⭐ 다시 방문하고 싶은 맛</option>
-                <option value="3">⭐⭐⭐ 기분 좋게 먹었습니다</option>
-                <option value="2">⭐⭐ 기대에 비해 평범했어요</option>
-                <option value="1">⭐ 저희 스타일은 아니었어요</option>`;
+            selRating.innerHTML = `<option value="5">⭐⭐⭐⭐⭐ 인생 최고의 맛집!</option><option value="4">⭐⭐⭐⭐ 다시 방문하고 싶은 맛</option><option value="3">⭐⭐⭐ 기분 좋게 먹었습니다</option><option value="2">⭐⭐ 기대에 비해 평범했어요</option><option value="1">⭐ 저희 스타일은 아니었어요</option>`;
         } else if(cat === '관광 명소') {
             lblTitle.innerText = "여정의 목적지 (명소 이름)";
             inpTitle.placeholder = "예: 루브르 박물관, 해운대 바닷가";
@@ -153,12 +150,7 @@
             inpInfo1.placeholder = "어떤 장면이 가장 기억에 남나요?";
             lblInfo2.innerText = "현장의 기록";
             inpInfo2.placeholder = "그곳에서 느낀 설렘과 감동을 적어보세요";
-            selRating.innerHTML = `
-                <option value="5">⭐⭐⭐⭐⭐ 평생 잊지 못할 풍경</option>
-                <option value="4">⭐⭐⭐⭐ 가슴이 탁 트이는 시간</option>
-                <option value="3">⭐⭐⭐ 즐거운 산책이었습니다</option>
-                <option value="2">⭐⭐ 사람에 너무 치였어요</option>
-                <option value="1">⭐ 생각보다 아쉬운 여정</option>`;
+            selRating.innerHTML = `<option value="5">⭐⭐⭐⭐⭐ 평생 잊지 못할 풍경</option><option value="4">⭐⭐⭐⭐ 가슴이 탁 트이는 시간</option><option value="3">⭐⭐⭐ 즐거운 산책이었습니다</option><option value="2">⭐⭐ 사람에 너무 치였어요</option><option value="1">⭐ 생각보다 아쉬운 여정</option>`;
         } else if(cat === '숙소') {
             lblTitle.innerText = "꿈결 같은 스테이 (숙소 이름)";
             inpTitle.placeholder = "예: 신라 호텔, 에어비앤비 다낭";
@@ -166,12 +158,7 @@
             inpInfo1.placeholder = "예: 5성급 호텔, 수영장 빌라, 감성 스테이";
             lblInfo2.innerText = "스테이 리포트";
             inpInfo2.placeholder = "아늑했던 침구, 조식의 맛, 주변의 분위기까지";
-            selRating.innerHTML = `
-                <option value="5">⭐⭐⭐⭐⭐ 여기서 살고 싶어요!</option>
-                <option value="4">⭐⭐⭐⭐ 내 집 같은 편안함</option>
-                <option value="3">⭐⭐⭐ 하룻밤 잘 쉬었습니다</option>
-                <option value="2">⭐⭐ 시설이 조금 아쉬워요</option>
-                <option value="1">⭐ 위생이 실망스러웠어요</option>`;
+            selRating.innerHTML = `<option value="5">⭐⭐⭐⭐⭐ 여기서 살고 싶어요!</option><option value="4">⭐⭐⭐⭐ 내 집 같은 편안함</option><option value="3">⭐⭐⭐ 하룻밤 잘 쉬었습니다</option><option value="2">⭐⭐ 시설이 조금 아쉬워요</option><option value="1">⭐ 위생이 실망스러웠어요</option>`;
         }
     }
 
@@ -192,6 +179,11 @@
         if(isHidden && !editMode) updateUI();
     }
 
+    function resetAndFilter() {
+        currentPage = 1;
+        runFilter();
+    }
+
     function runFilter() {
         const cat = document.getElementById('fCat').value;
         const cou = document.getElementById('fCou').value;
@@ -204,14 +196,15 @@
                    (!rat || parseInt(d.rating) >= parseInt(rat)) &&
                    (!key || (d.title && d.title.toLowerCase().includes(key)) || (d.info2 && d.info2.toLowerCase().includes(key)));
         });
-        currentPage = 1;
         drawList();
     }
 
-    // [중요] 최신순 정렬 및 10개씩 보여주는 drawList 함수
     function drawList() {
-        // 날짜 기준 최신순 정렬 (b-a)
-        const sortedData = filteredData.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+        const sortedData = filteredData.slice().sort((a, b) => {
+            const dateA = new Date(a.date.replace(/\. /g, '-').replace(/\.$/, ''));
+            const dateB = new Date(b.date.replace(/\. /g, '-').replace(/\.$/, ''));
+            return dateB - dateA;
+        });
         
         const startIndex = (currentPage - 1) * postsPerPage;
         const endIndex = startIndex + postsPerPage;
@@ -260,20 +253,52 @@
 
     function drawPagination() {
         const totalPages = Math.ceil(filteredData.length / postsPerPage);
-        const container = document.getElementById('pagination');
-        if(totalPages <= 1) { container.innerHTML = ""; return; }
+        const paginationContainer = document.getElementById('pagination');
+        paginationContainer.innerHTML = "";
 
-        container.innerHTML = `
-            <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>이전</button>
-            <span>${currentPage} / ${totalPages}</span>
-            <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>다음</button>
-        `;
-    }
+        if (totalPages <= 1) return;
 
-    function changePage(page) {
-        currentPage = page;
-        drawList();
-        window.scrollTo(0,0);
+        // [< 이전] 텍스트 형식으로 변경
+        const prevBtn = document.createElement('button');
+        prevBtn.innerText = '< 이전';
+        prevBtn.className = 'page-btn arrow-text-btn';
+        prevBtn.disabled = (currentPage === 1);
+        prevBtn.onclick = () => {
+            if (currentPage > 1) {
+                currentPage--;
+                drawList();
+            }
+        };
+        paginationContainer.appendChild(prevBtn);
+
+        // 페이지 번호
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, startPage + 4);
+        if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+        for (let i = startPage; i <= endPage; i++) {
+            const btn = document.createElement('button');
+            btn.innerText = i;
+            btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+            btn.onclick = () => {
+                currentPage = i;
+                drawList();
+            };
+            paginationContainer.appendChild(btn);
+        }
+
+        // [다음 >] 텍스트 형식으로 변경
+        const nextBtn = document.createElement('button');
+        nextBtn.innerText = '다음 >';
+        nextBtn.className = 'page-btn arrow-text-btn';
+        nextBtn.disabled = (currentPage === totalPages);
+        nextBtn.onclick = () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                drawList();
+            }
+        };
+        paginationContainer.appendChild(nextBtn);
     }
 
     function toggleAccordion(id) {
