@@ -157,7 +157,6 @@
         document.execCommand(cmd, false, value);
     }
 
-    // [수정] 외부 텍스트 붙여넣기 시 서식 제거 로직 추가
     document.getElementById('info2').addEventListener('paste', function(e) {
         e.preventDefault();
         const text = (e.originalEvent || e).clipboardData.getData('text/plain');
@@ -221,7 +220,9 @@
     async function loadData(keepFilter = false) {
         try {
             const res = await fetch(API_URL);
-            masterData = await res.json();
+            const data = await res.json();
+            // 타임스탬프 기준 내림차순 정렬 (최신이 위로)
+            masterData = data.sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0));
             updateFilters();
             if (keepFilter) {
                 runFilter();
@@ -261,16 +262,15 @@
                    (!key || (d.title && d.title.toLowerCase().includes(key)) || (d.info2 && d.info2.toLowerCase().includes(key)));
         });
         
+        // 필터링 후에도 타임스탬프 기준 내림차순 정렬 강제
         filteredData.sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0));
         drawList();
     }
 
     function drawList() {
-        const sortedData = filteredData.slice().sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0));
-        
         const startIndex = (currentPage - 1) * postsPerPage;
         const endIndex = startIndex + postsPerPage;
-        const itemsToShow = sortedData.slice(startIndex, endIndex);
+        const itemsToShow = filteredData.slice(startIndex, endIndex);
 
         const container = document.getElementById('list-container');
         if(filteredData.length === 0) { 
@@ -282,7 +282,7 @@
         container.innerHTML = itemsToShow.map((d, i) => {
             let addressHtml = d.address || '-';
             if (d.address) {
-                const mapLink = d.address.includes('http') ? d.address : `https://www.google.com/maps/search/${encodeURIComponent(d.address)}`;
+                const mapLink = d.address.includes('http') ? d.address : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.address)}`;
                 addressHtml = `<div>${d.address}</div><a href="${mapLink}" target="_blank" class="map-btn"><i class="fas fa-map-marked-alt"></i> 구글 지도에서 위치 확인</a>`;
             }
 
@@ -362,6 +362,7 @@
         e.preventDefault();
         const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerText = "소중히 저장하는 중...";
         
+        // **핵심 수정: 수정 시에도 새로운 현재 시간을 생성하여 최상단으로 보내기**
         const now = new Date();
         const currentTimeMillis = now.getTime().toString();
         
@@ -385,8 +386,8 @@
                 info1: document.getElementById('info1').value,
                 info2: document.getElementById('info2').innerHTML,
                 rating: document.getElementById('rating').value,
-                date: displayTime,
-                timestamp: currentTimeMillis
+                date: displayTime, // 수정된 시간 표시
+                timestamp: currentTimeMillis // 새로운 타임스탬프 부여로 최상단 이동 보장
             }
         };
         
