@@ -21,7 +21,6 @@
         label { display: block; margin-bottom: 8px; font-size: 0.85rem; font-weight: 700; color: #4a5568; }
         input, select, textarea { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 14px; font-size: 14px; background: #fdfdfd; }
         
-        /* Rich Text Editor Style */
         .editor-container { border: 1px solid #e2e8f0; border-radius: 14px; background: #fdfdfd; overflow: hidden; }
         .editor-toolbar { padding: 8px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .editor-toolbar button { background: white; border: 1px solid #ddd; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; }
@@ -65,8 +64,6 @@
         .page-btn:hover:not(:disabled) { background: #f0f7ff; color: var(--primary); border-color: var(--primary); }
         .page-btn:disabled { background: #f5f7fa; color: #cbd5e0; cursor: not-allowed; border-color: #e2e8f0; }
         .arrow-text-btn { border-radius: 12px; min-width: 70px; background: #eef2f7; color: var(--primary); border: none; font-size: 0.85rem; }
-        
-        @media screen and (max-width: 380px) { .filter-row { gap: 4px; } .filter-row select { padding: 8px 1px; } }
     </style>
 </head>
 <body>
@@ -164,23 +161,6 @@
         document.execCommand(cmd, false, value);
     }
 
-    window.onload = function() {
-        history.pushState(null, null, location.href);
-        window.onpopstate = function() {
-            const f = document.getElementById('form-container');
-            if(f.style.display === 'block') {
-                toggleForm();
-                history.pushState(null, null, location.href);
-            } else {
-                if(confirm("페이지를 나가시겠습니까?")) {
-                    history.back();
-                } else {
-                    history.pushState(null, null, location.href);
-                }
-            }
-        };
-    };
-
     function updateUI() {
         const cat = document.getElementById('category').value;
         const lblTitle = document.getElementById('lbl-title');
@@ -223,11 +203,7 @@
             const res = await fetch(API_URL);
             masterData = await res.json();
             updateFilters();
-            if (keepFilter) {
-                runFilter();
-            } else {
-                resetAndFilter();
-            }
+            if (keepFilter) runFilter(); else resetAndFilter();
         } catch (e) { document.getElementById('list-container').innerText = "여정을 불러오지 못했습니다."; }
     }
 
@@ -243,10 +219,7 @@
         }
     }
 
-    function resetAndFilter() {
-        currentPage = 1;
-        runFilter();
-    }
+    function resetAndFilter() { currentPage = 1; runFilter(); }
 
     function runFilter() {
         const cat = document.getElementById('fCat').value;
@@ -264,18 +237,17 @@
     }
 
     function drawList() {
-        // [정렬 로직 강화] 타임스탬프를 숫자로 변환하여 단 1밀리초라도 크면(최근이면) 최상단으로 정렬
-        const sortedData = filteredData.slice().sort((a, b) => {
-            const timeA = a.timestamp ? Number(a.timestamp) : 0;
-            const timeB = b.timestamp ? Number(b.timestamp) : 0;
-            return timeB - timeA;
+        // [초강력 정렬] 타임스탬프 숫자를 엄격히 비교 (밀리초 단위)
+        const sortedData = [...filteredData].sort((a, b) => {
+            const tA = a.timestamp ? Number(a.timestamp) : 0;
+            const tB = b.timestamp ? Number(b.timestamp) : 0;
+            return tB - tA; // 큰 숫자가 위로 (최신순)
         });
         
         const startIndex = (currentPage - 1) * postsPerPage;
-        const endIndex = startIndex + postsPerPage;
-        const itemsToShow = sortedData.slice(startIndex, endIndex);
-
+        const itemsToShow = sortedData.slice(startIndex, startIndex + postsPerPage);
         const container = document.getElementById('list-container');
+        
         if(filteredData.length === 0) { 
             container.innerHTML = "<p style='text-align:center;'>기록이 없습니다.</p>"; 
             document.getElementById('pagination').innerHTML = "";
@@ -288,8 +260,7 @@
                 const mapLink = d.address.includes('http') ? d.address : `https://www.google.com/maps/search/${encodeURIComponent(d.address)}`;
                 addressHtml = `<div>${d.address}</div><a href="${mapLink}" target="_blank" class="map-btn"><i class="fas fa-map-marked-alt"></i> 구글 지도에서 위치 확인</a>`;
             }
-
-            let label1 = "주요 기록", label2 = "우리의 기록";
+            let label1 = "기록", label2 = "상세";
             if(d.category === '로컬 맛집') { label1 = "추천 메뉴"; label2 = "우리의 미식 기록"; }
             else if(d.category === '관광 명소') { label1 = "감동 포인트"; label2 = "현장의 기록"; }
             else if(d.category === '숙소') { label1 = "숙소 타입 및 정보"; label2 = "스테이 리포트"; }
@@ -317,41 +288,33 @@
                     </div>
                 </div>
             </div>`}).join('');
-        
         drawPagination();
     }
 
     function drawPagination() {
         const totalPages = Math.ceil(filteredData.length / postsPerPage);
-        const paginationContainer = document.getElementById('pagination');
-        paginationContainer.innerHTML = "";
-        if (totalPages <= 1) return;
+        const p = document.getElementById('pagination');
+        p.innerHTML = ""; if (totalPages <= 1) return;
 
-        const prevBtn = document.createElement('button');
-        prevBtn.innerText = '< 이전';
-        prevBtn.className = 'page-btn arrow-text-btn';
-        prevBtn.disabled = (currentPage === 1);
-        prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; drawList(); } };
-        paginationContainer.appendChild(prevBtn);
+        const prev = document.createElement('button');
+        prev.innerText = '< 이전'; prev.className = 'page-btn arrow-text-btn';
+        prev.disabled = (currentPage === 1);
+        prev.onclick = () => { if(currentPage > 1) { currentPage--; drawList(); } };
+        p.appendChild(prev);
 
-        let startPage = Math.max(1, currentPage - 2);
-        let endPage = Math.min(totalPages, startPage + 4);
-        if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
-
-        for (let i = startPage; i <= endPage; i++) {
+        for (let i = 1; i <= totalPages; i++) {
+            if(i < currentPage - 2 || i > currentPage + 2) continue;
             const btn = document.createElement('button');
-            btn.innerText = i;
-            btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+            btn.innerText = i; btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
             btn.onclick = () => { currentPage = i; drawList(); };
-            paginationContainer.appendChild(btn);
+            p.appendChild(btn);
         }
 
-        const nextBtn = document.createElement('button');
-        nextBtn.innerText = '다음 >';
-        nextBtn.className = 'page-btn arrow-text-btn';
-        nextBtn.disabled = (currentPage === totalPages);
-        nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; drawList(); } };
-        paginationContainer.appendChild(nextBtn);
+        const next = document.createElement('button');
+        next.innerText = '다음 >'; next.className = 'page-btn arrow-text-btn';
+        next.disabled = (currentPage === totalPages);
+        next.onclick = () => { if(currentPage < totalPages) { currentPage++; drawList(); } };
+        p.appendChild(next);
     }
 
     function toggleAccordion(id) {
@@ -363,12 +326,9 @@
 
     document.getElementById('tripForm').onsubmit = async (e) => {
         e.preventDefault();
-        const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerText = "소중히 저장하는 중...";
+        const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerText = "저장 중...";
         
-        // [검수 포인트] 전송 직전 현재 시각을 밀리초 단위까지 강제 생성
         const now = new Date();
-        const currentTimeMillis = now.getTime().toString();
-        
         const payload = {
             action: editMode ? 'edit' : 'add',
             targetTitle: editTarget,
@@ -382,30 +342,18 @@
                 info2: document.getElementById('info2').innerHTML,
                 rating: document.getElementById('rating').value,
                 date: now.toLocaleDateString(),
-                timestamp: currentTimeMillis // 무조건 새로운 시간으로 갱신
+                timestamp: now.getTime().toString() // 단 1밀리초도 놓치지 않음
             }
         };
-        
-        try {
-            await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-            editMode = false;
-            editTarget = null;
-            toggleForm();
-            loadData(false); // 필터 초기화하고 로드하여 1페이지 맨 위로 오도록 함
-        } catch (error) {
-            alert("저장 중 오류가 발생했습니다.");
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "이 순간을 기록하기";
-        }
+        await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+        editMode = false; editTarget = null; toggleForm();
+        loadData(false); // 저장 즉시 1페이지 최상단 확인을 위해 로드
+        btn.disabled = false; btn.innerText = "이 순간을 기록하기";
     };
 
     function goEdit(t) {
-        event.stopPropagation();
-        const d = masterData.find(x => x.title === t);
-        if(!d) return;
-        document.getElementById('category').value = d.category;
-        updateUI();
+        const d = masterData.find(x => x.title === t); if(!d) return;
+        document.getElementById('category').value = d.category; updateUI();
         document.getElementById('title').value = d.title;
         document.getElementById('country').value = d.country;
         document.getElementById('region').value = d.region;
@@ -415,12 +363,10 @@
         document.getElementById('rating').value = d.rating;
         editMode = true; editTarget = t;
         if(document.getElementById('form-container').style.display !== 'block') toggleForm();
-        document.getElementById('btnSubmit').innerText = "수정 완료";
-        window.scrollTo(0,0);
+        document.getElementById('btnSubmit').innerText = "수정 완료"; window.scrollTo(0,0);
     }
 
     async function goDelete(t) {
-        event.stopPropagation();
         if(!confirm(`소중한 기록을 지울까요?`)) return;
         await fetch(API_URL, { method: 'POST', body: JSON.stringify({action:'delete', targetTitle:t}) });
         loadData(true);
@@ -433,8 +379,7 @@
         document.getElementById('fReg').innerHTML = '<option value="">지역 선택</option>' + regions.map(r => `<option value="${r}">${r}</option>`).join('');
     }
 
-    updateUI();
-    loadData();
+    updateUI(); loadData();
 </script>
 </body>
 </html>
