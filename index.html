@@ -157,6 +157,13 @@
         document.execCommand(cmd, false, value);
     }
 
+    // [수정] 외부 텍스트 붙여넣기 시 서식 제거 로직 추가
+    document.getElementById('info2').addEventListener('paste', function(e) {
+        e.preventDefault();
+        const text = (e.originalEvent || e).clipboardData.getData('text/plain');
+        document.execCommand('insertText', false, text);
+    });
+
     window.onload = function() {
         history.pushState(null, null, location.href);
         window.onpopstate = function() {
@@ -254,13 +261,11 @@
                    (!key || (d.title && d.title.toLowerCase().includes(key)) || (d.info2 && d.info2.toLowerCase().includes(key)));
         });
         
-        // [수정] 필터링 시에도 내림차순 정렬 유지
         filteredData.sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0));
         drawList();
     }
 
     function drawList() {
-        // [수정] 내림차순 정렬 강제: 큰 숫자(최신)가 위로 오도록 함
         const sortedData = filteredData.slice().sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0));
         
         const startIndex = (currentPage - 1) * postsPerPage;
@@ -360,7 +365,6 @@
         const now = new Date();
         const currentTimeMillis = now.getTime().toString();
         
-        // [수정] 초 단위까지 표시되는 날짜 형식 적용
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');
@@ -381,7 +385,7 @@
                 info1: document.getElementById('info1').value,
                 info2: document.getElementById('info2').innerHTML,
                 rating: document.getElementById('rating').value,
-                date: displayTime, // 초 단위 포함 시간
+                date: displayTime,
                 timestamp: currentTimeMillis
             }
         };
