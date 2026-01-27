@@ -264,11 +264,11 @@
     }
 
     function drawList() {
-        // 정렬: timestamp가 있는 경우 숫자 변환하여 완벽하게 내림차순 정렬 (최근 수정/작성 순)
+        // [정렬 로직 강화] 타임스탬프를 숫자로 변환하여 단 1밀리초라도 크면(최근이면) 최상단으로 정렬
         const sortedData = filteredData.slice().sort((a, b) => {
-            const valA = a.timestamp ? Number(a.timestamp) : 0;
-            const valB = b.timestamp ? Number(b.timestamp) : 0;
-            return valB - valA;
+            const timeA = a.timestamp ? Number(a.timestamp) : 0;
+            const timeB = b.timestamp ? Number(b.timestamp) : 0;
+            return timeB - timeA;
         });
         
         const startIndex = (currentPage - 1) * postsPerPage;
@@ -365,8 +365,10 @@
         e.preventDefault();
         const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerText = "소중히 저장하는 중...";
         
-        // 현재 시각 정보를 밀리초 단위까지 포함하여 전송 (정렬용)
+        // [검수 포인트] 전송 직전 현재 시각을 밀리초 단위까지 강제 생성
         const now = new Date();
+        const currentTimeMillis = now.getTime().toString();
+        
         const payload = {
             action: editMode ? 'edit' : 'add',
             targetTitle: editTarget,
@@ -380,17 +382,22 @@
                 info2: document.getElementById('info2').innerHTML,
                 rating: document.getElementById('rating').value,
                 date: now.toLocaleDateString(),
-                timestamp: now.getTime().toString() // 수정 시에도 최신 시간으로 갱신
+                timestamp: currentTimeMillis // 무조건 새로운 시간으로 갱신
             }
         };
-        await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
         
-        editMode = false;
-        editTarget = null;
-        toggleForm();
-        btn.disabled = false;
-        btn.innerText = "이 순간을 기록하기";
-        loadData(true); 
+        try {
+            await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+            editMode = false;
+            editTarget = null;
+            toggleForm();
+            loadData(false); // 필터 초기화하고 로드하여 1페이지 맨 위로 오도록 함
+        } catch (error) {
+            alert("저장 중 오류가 발생했습니다.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "이 순간을 기록하기";
+        }
     };
 
     function goEdit(t) {
