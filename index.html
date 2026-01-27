@@ -28,16 +28,10 @@
         .color-btn { width: 22px; height: 22px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); cursor: pointer; }
         
         .rich-editor { 
-            height: 200px !important; 
-            padding: 14px; 
-            overflow-y: auto !important; 
-            -webkit-overflow-scrolling: touch !important; 
-            font-size: 14px; 
-            outline: none; 
-            display: block;
+            height: 200px !important; padding: 14px; overflow-y: auto !important; 
+            -webkit-overflow-scrolling: touch !important; font-size: 14px; outline: none; display: block;
         }
         .rich-editor[contenteditable]:empty:before { content: attr(placeholder); color: #a0aec0; cursor: text; }
-
         textarea { height: 200px !important; resize: vertical; overflow-y: auto; line-height: 1.5; }
         
         .btn-submit { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; }
@@ -64,6 +58,8 @@
         .page-btn:hover:not(:disabled) { background: #f0f7ff; color: var(--primary); border-color: var(--primary); }
         .page-btn:disabled { background: #f5f7fa; color: #cbd5e0; cursor: not-allowed; border-color: #e2e8f0; }
         .arrow-text-btn { border-radius: 12px; min-width: 70px; background: #eef2f7; color: var(--primary); border: none; font-size: 0.85rem; }
+        
+        @media screen and (max-width: 380px) { .filter-row { gap: 4px; } .filter-row select { padding: 8px 1px; } }
     </style>
 </head>
 <body>
@@ -161,6 +157,23 @@
         document.execCommand(cmd, false, value);
     }
 
+    window.onload = function() {
+        history.pushState(null, null, location.href);
+        window.onpopstate = function() {
+            const f = document.getElementById('form-container');
+            if(f.style.display === 'block') {
+                toggleForm();
+                history.pushState(null, null, location.href);
+            } else {
+                if(confirm("페이지를 나가시겠습니까?")) {
+                    history.back();
+                } else {
+                    history.pushState(null, null, location.href);
+                }
+            }
+        };
+    };
+
     function updateUI() {
         const cat = document.getElementById('category').value;
         const lblTitle = document.getElementById('lbl-title');
@@ -203,7 +216,11 @@
             const res = await fetch(API_URL);
             masterData = await res.json();
             updateFilters();
-            if (keepFilter) runFilter(); else resetAndFilter();
+            if (keepFilter) {
+                runFilter();
+            } else {
+                resetAndFilter();
+            }
         } catch (e) { document.getElementById('list-container').innerText = "여정을 불러오지 못했습니다."; }
     }
 
@@ -219,7 +236,10 @@
         }
     }
 
-    function resetAndFilter() { currentPage = 1; runFilter(); }
+    function resetAndFilter() {
+        currentPage = 1;
+        runFilter();
+    }
 
     function runFilter() {
         const cat = document.getElementById('fCat').value;
@@ -233,21 +253,21 @@
                    (!rat || parseInt(d.rating) >= parseInt(rat)) &&
                    (!key || (d.title && d.title.toLowerCase().includes(key)) || (d.info2 && d.info2.toLowerCase().includes(key)));
         });
+        
+        // [수정] 필터링 시에도 내림차순 정렬 유지
+        filteredData.sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0));
         drawList();
     }
 
     function drawList() {
-        // [초강력 정렬] 타임스탬프 숫자를 엄격히 비교 (밀리초 단위)
-        const sortedData = [...filteredData].sort((a, b) => {
-            const tA = a.timestamp ? Number(a.timestamp) : 0;
-            const tB = b.timestamp ? Number(b.timestamp) : 0;
-            return tB - tA; // 큰 숫자가 위로 (최신순)
-        });
+        // [수정] 내림차순 정렬 강제: 큰 숫자(최신)가 위로 오도록 함
+        const sortedData = filteredData.slice().sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0));
         
         const startIndex = (currentPage - 1) * postsPerPage;
-        const itemsToShow = sortedData.slice(startIndex, startIndex + postsPerPage);
+        const endIndex = startIndex + postsPerPage;
+        const itemsToShow = sortedData.slice(startIndex, endIndex);
+
         const container = document.getElementById('list-container');
-        
         if(filteredData.length === 0) { 
             container.innerHTML = "<p style='text-align:center;'>기록이 없습니다.</p>"; 
             document.getElementById('pagination').innerHTML = "";
@@ -260,7 +280,8 @@
                 const mapLink = d.address.includes('http') ? d.address : `https://www.google.com/maps/search/${encodeURIComponent(d.address)}`;
                 addressHtml = `<div>${d.address}</div><a href="${mapLink}" target="_blank" class="map-btn"><i class="fas fa-map-marked-alt"></i> 구글 지도에서 위치 확인</a>`;
             }
-            let label1 = "기록", label2 = "상세";
+
+            let label1 = "주요 기록", label2 = "우리의 기록";
             if(d.category === '로컬 맛집') { label1 = "추천 메뉴"; label2 = "우리의 미식 기록"; }
             else if(d.category === '관광 명소') { label1 = "감동 포인트"; label2 = "현장의 기록"; }
             else if(d.category === '숙소') { label1 = "숙소 타입 및 정보"; label2 = "스테이 리포트"; }
@@ -288,33 +309,41 @@
                     </div>
                 </div>
             </div>`}).join('');
+        
         drawPagination();
     }
 
     function drawPagination() {
         const totalPages = Math.ceil(filteredData.length / postsPerPage);
-        const p = document.getElementById('pagination');
-        p.innerHTML = ""; if (totalPages <= 1) return;
+        const paginationContainer = document.getElementById('pagination');
+        paginationContainer.innerHTML = "";
+        if (totalPages <= 1) return;
 
-        const prev = document.createElement('button');
-        prev.innerText = '< 이전'; prev.className = 'page-btn arrow-text-btn';
-        prev.disabled = (currentPage === 1);
-        prev.onclick = () => { if(currentPage > 1) { currentPage--; drawList(); } };
-        p.appendChild(prev);
+        const prevBtn = document.createElement('button');
+        prevBtn.innerText = '< 이전';
+        prevBtn.className = 'page-btn arrow-text-btn';
+        prevBtn.disabled = (currentPage === 1);
+        prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; drawList(); } };
+        paginationContainer.appendChild(prevBtn);
 
-        for (let i = 1; i <= totalPages; i++) {
-            if(i < currentPage - 2 || i > currentPage + 2) continue;
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, startPage + 4);
+        if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+        for (let i = startPage; i <= endPage; i++) {
             const btn = document.createElement('button');
-            btn.innerText = i; btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+            btn.innerText = i;
+            btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
             btn.onclick = () => { currentPage = i; drawList(); };
-            p.appendChild(btn);
+            paginationContainer.appendChild(btn);
         }
 
-        const next = document.createElement('button');
-        next.innerText = '다음 >'; next.className = 'page-btn arrow-text-btn';
-        next.disabled = (currentPage === totalPages);
-        next.onclick = () => { if(currentPage < totalPages) { currentPage++; drawList(); } };
-        p.appendChild(next);
+        const nextBtn = document.createElement('button');
+        nextBtn.innerText = '다음 >';
+        nextBtn.className = 'page-btn arrow-text-btn';
+        nextBtn.disabled = (currentPage === totalPages);
+        nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; drawList(); } };
+        paginationContainer.appendChild(nextBtn);
     }
 
     function toggleAccordion(id) {
@@ -326,9 +355,20 @@
 
     document.getElementById('tripForm').onsubmit = async (e) => {
         e.preventDefault();
-        const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerText = "저장 중...";
+        const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerText = "소중히 저장하는 중...";
         
         const now = new Date();
+        const currentTimeMillis = now.getTime().toString();
+        
+        // [수정] 초 단위까지 표시되는 날짜 형식 적용
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const displayTime = `${year}. ${month}. ${day}. ${hours}:${minutes}:${seconds}`;
+
         const payload = {
             action: editMode ? 'edit' : 'add',
             targetTitle: editTarget,
@@ -341,19 +381,31 @@
                 info1: document.getElementById('info1').value,
                 info2: document.getElementById('info2').innerHTML,
                 rating: document.getElementById('rating').value,
-                date: now.toLocaleDateString(),
-                timestamp: now.getTime().toString() // 단 1밀리초도 놓치지 않음
+                date: displayTime, // 초 단위 포함 시간
+                timestamp: currentTimeMillis
             }
         };
-        await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-        editMode = false; editTarget = null; toggleForm();
-        loadData(false); // 저장 즉시 1페이지 최상단 확인을 위해 로드
-        btn.disabled = false; btn.innerText = "이 순간을 기록하기";
+        
+        try {
+            await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+            editMode = false;
+            editTarget = null;
+            toggleForm();
+            loadData(false);
+        } catch (error) {
+            alert("저장 중 오류가 발생했습니다.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "이 순간을 기록하기";
+        }
     };
 
     function goEdit(t) {
-        const d = masterData.find(x => x.title === t); if(!d) return;
-        document.getElementById('category').value = d.category; updateUI();
+        event.stopPropagation();
+        const d = masterData.find(x => x.title === t);
+        if(!d) return;
+        document.getElementById('category').value = d.category;
+        updateUI();
         document.getElementById('title').value = d.title;
         document.getElementById('country').value = d.country;
         document.getElementById('region').value = d.region;
@@ -363,10 +415,12 @@
         document.getElementById('rating').value = d.rating;
         editMode = true; editTarget = t;
         if(document.getElementById('form-container').style.display !== 'block') toggleForm();
-        document.getElementById('btnSubmit').innerText = "수정 완료"; window.scrollTo(0,0);
+        document.getElementById('btnSubmit').innerText = "수정 완료";
+        window.scrollTo(0,0);
     }
 
     async function goDelete(t) {
+        event.stopPropagation();
         if(!confirm(`소중한 기록을 지울까요?`)) return;
         await fetch(API_URL, { method: 'POST', body: JSON.stringify({action:'delete', targetTitle:t}) });
         loadData(true);
@@ -379,7 +433,8 @@
         document.getElementById('fReg').innerHTML = '<option value="">지역 선택</option>' + regions.map(r => `<option value="${r}">${r}</option>`).join('');
     }
 
-    updateUI(); loadData();
+    updateUI();
+    loadData();
 </script>
 </body>
 </html>
