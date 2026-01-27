@@ -108,16 +108,16 @@
                     <label id="lbl-info2">우리의 미식 기록</label>
                     <div class="editor-container">
                         <div class="editor-toolbar">
-                            <button type="button" onclick="execCmd('bold')">B</button>
-                            <button type="button" onclick="execCmd('underline')">U</button>
+                            <button type="button" onmousedown="event.preventDefault(); execCmd('bold')">B</button>
+                            <button type="button" onmousedown="event.preventDefault(); execCmd('underline')">U</button>
                             <div class="color-palette">
-                                <div class="color-btn" style="background:#000000" onclick="execCmd('foreColor', '#000000')" title="검정"></div>
-                                <div class="color-btn" style="background:#ff0000" onclick="execCmd('foreColor', '#ff0000')" title="빨강"></div>
-                                <div class="color-btn" style="background:#0000ff" onclick="execCmd('foreColor', '#0000ff')" title="파랑"></div>
-                                <div class="color-btn" style="background:#ffff00" onclick="execCmd('foreColor', '#ffff00')" title="노랑"></div>
-                                <div class="color-btn" style="background:#8b4513" onclick="execCmd('foreColor', '#8b4513')" title="갈색"></div>
-                                <div class="color-btn" style="background:#008000" onclick="execCmd('foreColor', '#008000')" title="초록"></div>
-                                <div class="color-btn" style="background:#800080" onclick="execCmd('foreColor', '#800080')" title="보라"></div>
+                                <div class="color-btn" style="background:#000000" onmousedown="event.preventDefault(); execCmd('foreColor', '#000000')" title="검정"></div>
+                                <div class="color-btn" style="background:#ff0000" onmousedown="event.preventDefault(); execCmd('foreColor', '#ff0000')" title="빨강"></div>
+                                <div class="color-btn" style="background:#0000ff" onmousedown="event.preventDefault(); execCmd('foreColor', '#0000ff')" title="파랑"></div>
+                                <div class="color-btn" style="background:#ffff00" onmousedown="event.preventDefault(); execCmd('foreColor', '#ffff00')" title="노랑"></div>
+                                <div class="color-btn" style="background:#8b4513" onmousedown="event.preventDefault(); execCmd('foreColor', '#8b4513')" title="갈색"></div>
+                                <div class="color-btn" style="background:#008000" onmousedown="event.preventDefault(); execCmd('foreColor', '#008000')" title="초록"></div>
+                                <div class="color-btn" style="background:#800080" onmousedown="event.preventDefault(); execCmd('foreColor', '#800080')" title="보라"></div>
                             </div>
                         </div>
                         <div id="info2" class="rich-editor" contenteditable="true" placeholder="맛의 감동이나 가족들의 대화를 남겨보세요"></div>
@@ -159,8 +159,10 @@
     let currentPage = 1;
     const postsPerPage = 10;
 
-    // 편집 기능 함수
+    // 편집 기능 함수 수정: 포커스 유지 로직 추가
     function execCmd(cmd, value = null) {
+        const editor = document.getElementById('info2');
+        editor.focus();
         document.execCommand(cmd, false, value);
     }
 
