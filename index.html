@@ -28,7 +28,6 @@
         .color-palette { display: flex; gap: 4px; margin-left: 5px; border-left: 1px solid #ddd; padding-left: 10px; }
         .color-btn { width: 22px; height: 22px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); cursor: pointer; }
         
-        /* 휴대폰 스크롤바 수정 부분 */
         .rich-editor { 
             height: 200px !important; 
             padding: 14px; 
@@ -159,14 +158,12 @@
     let currentPage = 1;
     const postsPerPage = 10;
 
-    // 편집 기능 함수 수정: 포커스 유지 로직 추가
     function execCmd(cmd, value = null) {
         const editor = document.getElementById('info2');
         editor.focus();
         document.execCommand(cmd, false, value);
     }
 
-    // 모바일 뒤로가기 방지 로직
     window.onload = function() {
         history.pushState(null, null, location.href);
         window.onpopstate = function() {
@@ -241,7 +238,7 @@
         document.getElementById('btnToggle').innerHTML = isHidden ? '<i class="fas fa-times"></i> 닫기' : '<i class="fas fa-magic"></i> 소중한 추억 새기기';
         if(isHidden && !editMode) {
             document.getElementById('tripForm').reset();
-            document.getElementById('info2').innerHTML = ''; // 에디터 초기화
+            document.getElementById('info2').innerHTML = '';
             updateUI();
         }
     }
@@ -267,10 +264,11 @@
     }
 
     function drawList() {
+        // 정렬: timestamp가 있는 경우 숫자 변환하여 완벽하게 내림차순 정렬 (최근 수정/작성 순)
         const sortedData = filteredData.slice().sort((a, b) => {
-            const timeA = a.timestamp ? parseInt(a.timestamp) : new Date(a.date.replace(/\. /g, '-').replace(/\.$/, '')).getTime();
-            const timeB = b.timestamp ? parseInt(b.timestamp) : new Date(b.date.replace(/\. /g, '-').replace(/\.$/, '')).getTime();
-            return timeB - timeA;
+            const valA = a.timestamp ? Number(a.timestamp) : 0;
+            const valB = b.timestamp ? Number(b.timestamp) : 0;
+            return valB - valA;
         });
         
         const startIndex = (currentPage - 1) * postsPerPage;
@@ -287,7 +285,7 @@
         container.innerHTML = itemsToShow.map((d, i) => {
             let addressHtml = d.address || '-';
             if (d.address) {
-                const mapLink = d.address.includes('http') ? d.address : `http://maps.google.com/?q=${encodeURIComponent(d.address)}`;
+                const mapLink = d.address.includes('http') ? d.address : `https://www.google.com/maps/search/${encodeURIComponent(d.address)}`;
                 addressHtml = `<div>${d.address}</div><a href="${mapLink}" target="_blank" class="map-btn"><i class="fas fa-map-marked-alt"></i> 구글 지도에서 위치 확인</a>`;
             }
 
@@ -313,7 +311,6 @@
                     <div class="detail-card"><div class="detail-label">📍 위치 정보</div>${addressHtml}</div>
                     <div class="detail-card"><div class="detail-label">✨ ${label1}</div>${d.info1 || '-'}</div>
                     <div class="detail-card"><div class="detail-label">📝 ${label2}</div><div style="white-space:pre-wrap;">${d.info2 || '-'}</div></div>
-                    ${d.category === '숙소' ? `<div class="detail-card"><div class="detail-label">💝 가족들의 마음 점수</div>⭐ ${d.rating}</div>` : ''}
                     <div style="text-align:right; margin-top:20px;">
                         <button onclick="goEdit('${d.title.replace(/'/g, "\\'")}')" style="border:none; background:#edf2f7; color:#4a5568; padding:10px 18px; border-radius:10px; cursor:pointer; font-weight:700;">기록 수정</button>
                         <button onclick="goDelete('${d.title.replace(/'/g, "\\'")}')" style="border:none; background:#fff5f5; color:#e53e3e; padding:10px 18px; border-radius:10px; cursor:pointer; margin-left:12px; font-weight:700;">기록 삭제</button>
@@ -367,6 +364,9 @@
     document.getElementById('tripForm').onsubmit = async (e) => {
         e.preventDefault();
         const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerText = "소중히 저장하는 중...";
+        
+        // 현재 시각 정보를 밀리초 단위까지 포함하여 전송 (정렬용)
+        const now = new Date();
         const payload = {
             action: editMode ? 'edit' : 'add',
             targetTitle: editTarget,
@@ -377,10 +377,10 @@
                 region: document.getElementById('region').value,
                 address: document.getElementById('address').value,
                 info1: document.getElementById('info1').value,
-                info2: document.getElementById('info2').innerHTML, // HTML로 저장
+                info2: document.getElementById('info2').innerHTML,
                 rating: document.getElementById('rating').value,
-                date: new Date().toLocaleDateString(),
-                timestamp: Date.now().toString()
+                date: now.toLocaleDateString(),
+                timestamp: now.getTime().toString() // 수정 시에도 최신 시간으로 갱신
             }
         };
         await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
@@ -404,7 +404,7 @@
         document.getElementById('region').value = d.region;
         document.getElementById('address').value = d.address || '';
         document.getElementById('info1').value = d.info1 || '';
-        document.getElementById('info2').innerHTML = d.info2 || ''; // HTML 불러오기
+        document.getElementById('info2').innerHTML = d.info2 || '';
         document.getElementById('rating').value = d.rating;
         editMode = true; editTarget = t;
         if(document.getElementById('form-container').style.display !== 'block') toggleForm();
