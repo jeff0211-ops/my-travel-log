@@ -12,7 +12,6 @@
         body { background: var(--bg); margin: 0; padding: 20px; color: var(--dark); line-height: 1.6; }
         .container { max-width: 800px; margin: 0 auto; }
         .header { text-align: center; padding: 30px 0; }
-        /* 3. 로고 클릭 시 초기화 스타일 */
         .header h1 { font-size: 2.2rem; margin: 0; font-weight: 800; color: var(--primary); cursor: pointer; display: inline-block; }
         .header p { color: #636e72; margin-top: 8px; font-weight: 500; font-size: 1.1rem; }
         .btn-toggle-form { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 50px; font-weight: 700; cursor: pointer; display: block; margin: 0 0 25px auto; box-shadow: 0 4px 15px rgba(9, 132, 227, 0.3); transition: 0.2s; }
@@ -28,10 +27,14 @@
         .color-palette { display: flex; gap: 4px; margin-left: 5px; border-left: 1px solid #ddd; padding-left: 10px; }
         .color-btn { width: 22px; height: 22px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); cursor: pointer; }
         
-        /* 1. 스크롤바 개선 스타일 */
+        /* 특수문자 버튼 전용 스타일 */
+        .symbol-palette { display: flex; gap: 4px; margin-left: 5px; border-left: 1px solid #ddd; padding-left: 10px; }
+        .symbol-btn { background: #fff !important; border: 1px solid #ddd !important; padding: 2px 8px !important; border-radius: 4px !important; cursor: pointer; font-size: 13px !important; color: #2d3436; }
+        .symbol-btn:hover { background: #edf2f7 !important; }
+
         .rich-editor { 
             height: 200px !important; padding: 14px; 
-            overflow-y: scroll !important; /* 상시 노출 */
+            overflow-y: scroll !important; 
             -webkit-overflow-scrolling: touch !important; 
             font-size: 14px; outline: none; display: block;
             word-break: break-all;
@@ -121,6 +124,12 @@
                                 <div class="color-btn" style="background:#008000" onmousedown="event.preventDefault(); execCmd('foreColor', '#008000')" title="초록"></div>
                                 <div class="color-btn" style="background:#800080" onmousedown="event.preventDefault(); execCmd('foreColor', '#800080')" title="보라"></div>
                             </div>
+                            <div class="symbol-palette">
+                                <button type="button" class="symbol-btn" onmousedown="event.preventDefault(); insertSymbol('>')">></button>
+                                <button type="button" class="symbol-btn" onmousedown="event.preventDefault(); insertSymbol('*')">*</button>
+                                <button type="button" class="symbol-btn" onmousedown="event.preventDefault(); insertSymbol('※')">※</button>
+                                <button type="button" class="symbol-btn" onmousedown="event.preventDefault(); insertSymbol('•')">•</button>
+                            </div>
                         </div>
                         <div id="info2" class="rich-editor" contenteditable="true" placeholder="맛의 감동이나 가족들의 대화를 남겨보세요"></div>
                     </div>
@@ -174,7 +183,13 @@
         document.execCommand(cmd, false, value);
     }
 
-    // 2. 외부 서식 제거 후 일반 텍스트만 붙여넣기 수정
+    // 특수문자 삽입 함수
+    function insertSymbol(sym) {
+        const editor = document.getElementById('info2');
+        editor.focus();
+        document.execCommand('insertText', false, sym);
+    }
+
     document.getElementById('info2').addEventListener('paste', function(e) {
         e.preventDefault();
         const text = (e.originalEvent || e).clipboardData.getData('text/plain');
@@ -239,7 +254,7 @@
         try {
             const res = await fetch(API_URL);
             const data = await res.json();
-            // 최신 저장/수정 게시글이 최상단에 오게 하는 핵심 로직 (보존)
+            // 최신글 상단 이동 보존 로직
             masterData = data.sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0));
             updateFilters();
             if (keepFilter) {
@@ -379,7 +394,6 @@
         e.preventDefault();
         const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerText = "소중히 저장하는 중...";
         
-        // 최신글 상단 이동 보장 로직 (수정 시에도 현재 시간 밀리초를 타임스탬프로 저장)
         const now = new Date();
         const currentTimeMillis = now.getTime().toString();
         
