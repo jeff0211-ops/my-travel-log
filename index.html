@@ -22,14 +22,15 @@
         input, select, textarea { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 14px; font-size: 14px; background: #fdfdfd; }
         
         .editor-container { border: 1px solid #e2e8f0; border-radius: 14px; background: #fdfdfd; overflow: hidden; }
-        .editor-toolbar { padding: 8px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        .editor-toolbar button { background: white; border: 1px solid #ddd; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; }
-        .color-palette { display: flex; gap: 4px; margin-left: 5px; border-left: 1px solid #ddd; padding-left: 10px; }
+        /* 툴바가 모바일에서 잘리지 않도록 flex-wrap 설정 유지 및 여백 최적화 */
+        .editor-toolbar { padding: 10px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .editor-toolbar button { background: white; border: 1px solid #ddd; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; color: var(--dark); }
+        .color-palette { display: flex; gap: 4px; margin-left: 2px; border-left: 1px solid #ddd; padding-left: 8px; flex-wrap: wrap; }
         .color-btn { width: 22px; height: 22px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); cursor: pointer; }
         
-        /* 특수문자 버튼 전용 스타일 */
-        .symbol-palette { display: flex; gap: 4px; margin-left: 5px; border-left: 1px solid #ddd; padding-left: 10px; }
-        .symbol-btn { background: #fff !important; border: 1px solid #ddd !important; padding: 2px 8px !important; border-radius: 4px !important; cursor: pointer; font-size: 13px !important; color: #2d3436; }
+        /* 특수문자 버튼 모바일 최적화 */
+        .symbol-palette { display: flex; gap: 4px; margin-left: 2px; border-left: 1px solid #ddd; padding-left: 8px; flex-wrap: wrap; }
+        .symbol-btn { background: #fff !important; border: 1px solid #ddd !important; padding: 4px 10px !important; border-radius: 4px !important; cursor: pointer; font-size: 14px !important; color: #2d3436; min-width: 32px; }
         .symbol-btn:hover { background: #edf2f7 !important; }
 
         .rich-editor { 
@@ -45,12 +46,11 @@
         .rich-editor::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
 
         .rich-editor[contenteditable]:empty:before { content: attr(placeholder); color: #a0aec0; cursor: text; }
-        textarea { height: 200px !important; resize: vertical; overflow-y: auto; line-height: 1.5; }
         
         .btn-submit { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; }
         .filter-area { background: #fff; padding: 15px; border-radius: 22px; margin-bottom: 25px; border: 1px solid #edf2f7; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
         .filter-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
-        .filter-row select { padding: 10px 2px; font-size: clamp(10px, 3.2vw, 13px); text-align: center; border-radius: 12px; background: #f8fafc; border: 1px solid #eee; appearance: none; text-indent: 1px; }
+        .filter-row select { padding: 10px 2px; font-size: clamp(10px, 3.2vw, 13px); text-align: center; border-radius: 12px; background: #f8fafc; border: 1px solid #eee; appearance: none; }
         .search-row { display: flex; gap: 8px; }
         .search-row input { flex: 1; height: 46px; border-radius: 23px; padding-left: 18px; border: 1px solid #e2e8f0; font-size: 14px; }
         .btn-search { width: 46px; height: 46px; background: var(--primary); color: white; border: none; border-radius: 50%; cursor: pointer; }
@@ -66,13 +66,14 @@
         .map-btn { display: inline-flex; align-items: center; gap: 6px; background: #e1f0ff; color: #0984e3; padding: 8px 15px; border-radius: 10px; text-decoration: none; font-size: 0.85rem; font-weight: 700; margin-top: 10px; }
 
         .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 30px; margin-bottom: 40px; }
-        .page-btn { min-width: 38px; height: 38px; border-radius: 50%; border: 1px solid #e2e8f0; background: #fff; color: #718096; font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; justify-content: center; align-items: center; padding: 0 10px; }
+        .page-btn { min-width: 38px; height: 38px; border-radius: 50%; border: 1px solid #e2e8f0; background: #fff; color: #718096; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; padding: 0 10px; }
         .page-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 10px rgba(9, 132, 227, 0.2); }
-        .page-btn:hover:not(:disabled) { background: #f0f7ff; color: var(--primary); border-color: var(--primary); }
-        .page-btn:disabled { background: #f5f7fa; color: #cbd5e0; cursor: not-allowed; border-color: #e2e8f0; }
         .arrow-text-btn { border-radius: 12px; min-width: 70px; background: #eef2f7; color: var(--primary); border: none; font-size: 0.85rem; }
         
-        @media screen and (max-width: 380px) { .filter-row { gap: 4px; } .filter-row select { padding: 8px 1px; } }
+        @media screen and (max-width: 480px) { 
+            .editor-toolbar { gap: 8px; }
+            .symbol-palette, .color-palette { border-left: none; padding-left: 0; margin-top: 5px; }
+        }
     </style>
 </head>
 <body>
@@ -183,7 +184,6 @@
         document.execCommand(cmd, false, value);
     }
 
-    // 특수문자 삽입 함수
     function insertSymbol(sym) {
         const editor = document.getElementById('info2');
         editor.focus();
@@ -254,7 +254,7 @@
         try {
             const res = await fetch(API_URL);
             const data = await res.json();
-            // 최신글 상단 이동 보존 로직
+            // 최신글 상단 정렬 로직 (변경 절대 불가 영역)
             masterData = data.sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0));
             updateFilters();
             if (keepFilter) {
