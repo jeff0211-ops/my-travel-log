@@ -12,7 +12,8 @@
         body { background: var(--bg); margin: 0; padding: 20px; color: var(--dark); line-height: 1.6; }
         .container { max-width: 800px; margin: 0 auto; }
         .header { text-align: center; padding: 30px 0; }
-        .header h1 { font-size: 2.2rem; margin: 0; font-weight: 800; color: var(--primary); }
+        /* 3. 로고 클릭 시 초기화 스타일 */
+        .header h1 { font-size: 2.2rem; margin: 0; font-weight: 800; color: var(--primary); cursor: pointer; display: inline-block; }
         .header p { color: #636e72; margin-top: 8px; font-weight: 500; font-size: 1.1rem; }
         .btn-toggle-form { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 50px; font-weight: 700; cursor: pointer; display: block; margin: 0 0 25px auto; box-shadow: 0 4px 15px rgba(9, 132, 227, 0.3); transition: 0.2s; }
         #form-container { display: none; background: var(--white); border-radius: 24px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 30px; border: 1px solid #edf2f7; }
@@ -27,15 +28,17 @@
         .color-palette { display: flex; gap: 4px; margin-left: 5px; border-left: 1px solid #ddd; padding-left: 10px; }
         .color-btn { width: 22px; height: 22px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); cursor: pointer; }
         
-        /* 기록 입력란 스크롤바 강제 가시화 스타일 */
+        /* 1. 스크롤바 개선 스타일 */
         .rich-editor { 
-            height: 200px !important; padding: 14px; overflow-y: scroll !important; 
-            -webkit-overflow-scrolling: touch !important; font-size: 14px; outline: none; display: block;
+            height: 200px !important; padding: 14px; 
+            overflow-y: scroll !important; /* 상시 노출 */
+            -webkit-overflow-scrolling: touch !important; 
+            font-size: 14px; outline: none; display: block;
+            word-break: break-all;
         }
-        /* 스크롤바 디자인 (데스크탑 브라우저용) */
-        .rich-editor::-webkit-scrollbar { width: 8px; }
+        .rich-editor::-webkit-scrollbar { width: 10px; display: block; }
         .rich-editor::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 0 14px 14px 0; }
-        .rich-editor::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 10px; }
+        .rich-editor::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 10px; border: 2px solid #f1f1f1; }
         .rich-editor::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
 
         .rich-editor[contenteditable]:empty:before { content: attr(placeholder); color: #a0aec0; cursor: text; }
@@ -72,7 +75,7 @@
 <body>
 <div class="container">
     <header class="header">
-        <h1>Family <span>Archive</span></h1>
+        <h1 onclick="location.reload()">Family <span>Archive</span></h1>
         <p>어느 멋진 날, 우리 가족의 발자취</p>
     </header>
 
@@ -136,7 +139,14 @@
             <select id="fCat" onchange="resetAndFilter()"><option value="">전체 유형</option><option value="로컬 맛집">맛집</option><option value="관광 명소">명소</option><option value="숙소">숙소</option></select>
             <select id="fCou" onchange="resetAndFilter()"><option value="">국가 선택</option></select>
             <select id="fReg" onchange="resetAndFilter()"><option value="">지역 선택</option></select>
-            <select id="fRat" onchange="resetAndFilter()"><option value="">평점순</option><option value="5">Best</option><option value="4">Good↑</option></select>
+            <select id="fRat" onchange="resetAndFilter()">
+                <option value="">평점 전체</option>
+                <option value="5">⭐⭐⭐⭐⭐ (5점)</option>
+                <option value="4">⭐⭐⭐⭐↑ (4점↑)</option>
+                <option value="3">⭐⭐⭐↑ (3점↑)</option>
+                <option value="2">⭐⭐↑ (2점↑)</option>
+                <option value="1">⭐↑ (1점↑)</option>
+            </select>
         </div>
         <div class="search-row">
             <input type="text" id="keyword" placeholder="장소나 기억을 검색해 보세요..." onkeypress="if(event.keyCode==13) resetAndFilter()">
@@ -164,6 +174,7 @@
         document.execCommand(cmd, false, value);
     }
 
+    // 2. 외부 서식 제거 후 일반 텍스트만 붙여넣기 수정
     document.getElementById('info2').addEventListener('paste', function(e) {
         e.preventDefault();
         const text = (e.originalEvent || e).clipboardData.getData('text/plain');
@@ -228,7 +239,7 @@
         try {
             const res = await fetch(API_URL);
             const data = await res.json();
-            // 타임스탬프 기준 정렬 보존
+            // 최신 저장/수정 게시글이 최상단에 오게 하는 핵심 로직 (보존)
             masterData = data.sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0));
             updateFilters();
             if (keepFilter) {
@@ -368,6 +379,7 @@
         e.preventDefault();
         const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerText = "소중히 저장하는 중...";
         
+        // 최신글 상단 이동 보장 로직 (수정 시에도 현재 시간 밀리초를 타임스탬프로 저장)
         const now = new Date();
         const currentTimeMillis = now.getTime().toString();
         
@@ -392,7 +404,7 @@
                 info2: document.getElementById('info2').innerHTML,
                 rating: document.getElementById('rating').value,
                 date: displayTime,
-                timestamp: currentTimeMillis // 최상단 이동 보장 로직 유지
+                timestamp: currentTimeMillis
             }
         };
         
