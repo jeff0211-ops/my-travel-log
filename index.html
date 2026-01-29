@@ -31,20 +31,21 @@
         .symbol-btn { background: #fff !important; border: 1px solid #ddd !important; padding: 4px 10px !important; border-radius: 4px !important; cursor: pointer; font-size: 14px !important; color: #2d3436; min-width: 32px; }
         .symbol-btn:hover { background: #edf2f7 !important; }
 
-        /* [수정] 텍스트 편집 후 스크롤바 작동 보완을 위한 스타일 */
+        /* [수정] 입력란 내부에 커서가 있을 때(포커스) 모바일 스크롤 이슈 해결 */
         .rich-editor { 
             height: 200px !important; 
             padding: 14px; 
             overflow-y: auto !important; 
+            overflow-x: hidden !important;
             -webkit-overflow-scrolling: touch !important; 
-            touch-action: pan-y !important; /* 모바일에서 내부 편집 후에도 상하 스크롤이 확실히 작동하게 함 */
+            touch-action: pan-y !important; /* 커서가 안에 있어도 상하 스크롤을 허용 */
             font-size: 14px; 
             outline: none; 
             display: block;
             word-break: break-all;
             position: relative;
-            z-index: 1;
         }
+        /* 스크롤바 디자인 유지 */
         .rich-editor::-webkit-scrollbar { width: 10px; display: block; }
         .rich-editor::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 0 14px 14px 0; }
         .rich-editor::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 10px; border: 2px solid #f1f1f1; }
@@ -195,14 +196,12 @@
         document.execCommand('insertText', false, sym);
     }
 
-    // 일반 텍스트만 붙여넣기 기능
     document.getElementById('info2').addEventListener('paste', function(e) {
         e.preventDefault();
         const text = (e.originalEvent || e).clipboardData.getData('text/plain');
         document.execCommand('insertText', false, text);
     });
 
-    // 뒤로가기 제어
     window.onload = function() {
         history.pushState(null, null, location.href);
         window.onpopstate = function() {
@@ -261,7 +260,7 @@
         try {
             const res = await fetch(API_URL);
             const data = await res.json();
-            // 최신 게시글 최상단 정렬 유지
+            // 최신 게시글 최상단 유지 로직
             masterData = data.sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0));
             updateFilters();
             if (keepFilter) { runFilter(); } else { resetAndFilter(); }
