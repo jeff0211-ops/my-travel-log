@@ -31,12 +31,12 @@
         .symbol-btn { background: #fff !important; border: 1px solid #ddd !important; padding: 4px 10px !important; border-radius: 4px !important; cursor: pointer; font-size: 14px !important; color: #2d3436; min-width: 32px; }
         .symbol-btn:hover { background: #edf2f7 !important; }
 
-        /* 편집기 내부 스크롤 및 터치 최적화 수정 */
+        /* [수정 2] 편집 후 스크롤 먹통 현상 해결을 위한 스타일 보완 */
         .rich-editor { 
             height: 200px !important; padding: 14px; 
             overflow-y: auto !important; 
             -webkit-overflow-scrolling: touch !important; 
-            touch-action: pan-y !important; /* 모바일 터치 스크롤 보정 */
+            touch-action: pan-y !important; /* 터치 스크롤 방향 고정으로 간섭 최소화 */
             font-size: 14px; outline: none; display: block;
             word-break: break-all;
         }
@@ -190,12 +190,17 @@
         document.execCommand('insertText', false, sym);
     }
 
-    // 1. 서식 없이 일반 텍스트만 붙여넣기 기능 (강력 수정)
+    // [수정 1] 외부 텍스트 붙여넣기 시 서식 완전 제거 로직
     document.getElementById('info2').addEventListener('paste', function(e) {
         e.preventDefault();
         const text = (e.originalEvent || e).clipboardData.getData('text/plain');
         document.execCommand('insertText', false, text);
     });
+
+    // 편집기 스크롤 방해 금지 로직
+    document.getElementById('info2').addEventListener('touchmove', function(e) {
+        e.stopPropagation();
+    }, {passive: true});
 
     window.onload = function() {
         history.pushState(null, null, location.href);
@@ -255,7 +260,7 @@
         try {
             const res = await fetch(API_URL);
             const data = await res.json();
-            // 최신글 상단 정렬 로직 (절대 보존)
+            // [중요] 최신글 상단 정렬 로직 (절대 보존)
             masterData = data.sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0));
             updateFilters();
             if (keepFilter) {
